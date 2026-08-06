@@ -1,0 +1,67 @@
+<?php
+
+namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiDokumens\Tables;
+
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiDokumens\ReservasiDokumenResource;
+
+class ReservasiDokumensTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->striped()
+            ->recordAction(null)
+            ->defaultSort('created_at', 'desc')
+            ->columns([
+                TextColumn::make('#')->rowIndex(),
+
+                TextColumn::make('invoice')
+                    ->label('Invoice')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('tanggal_pemesanan')
+                    ->label('Tanggal')
+                    ->date('d-m-Y')
+                    ->sortable(),
+
+                TextColumn::make('nama_customer')
+                    ->label('Pemesan')
+                    ->searchable(),
+
+                TextColumn::make('ticketingUnitKerja.nama_unit_kerja')
+                    ->label('Unit Kerja')
+                    ->searchable(),
+
+                TextColumn::make('ticketingDokumen.jenis_dokumen')
+                    ->label('Jenis Dokumen')
+                    ->searchable(),
+
+                TextColumn::make('harga_jual')
+                    ->label('Harga Jual')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->sortable(),
+
+                TextColumn::make('status_pemesanan')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Confirmed' => 'success',
+                        'Canceled', 'Refund' => 'danger',
+                        default => 'info',
+                    })
+                    ->sortable(),
+            ])
+            ->filters([])
+            ->recordActions([
+                EditAction::make()
+                    ->button()
+                    ->hiddenLabel()
+                    ->url(fn ($record) => ReservasiDokumenResource::getUrl('edit', ['record' => $record])),
+            ])
+            ->toolbarActions([]);
+    }
+}
