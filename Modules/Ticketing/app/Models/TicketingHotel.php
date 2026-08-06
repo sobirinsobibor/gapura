@@ -25,6 +25,11 @@ class TicketingHotel extends Model
         'is_active',
     ];
 
+    public function ticketingKamarHotels()
+    {
+        return $this->hasMany(TicketingKamarHotel::class);
+    }
+
     // protected static function newFactory(): TicketingHotelFactory
     // {
     //     // return TicketingHotelFactory::new();

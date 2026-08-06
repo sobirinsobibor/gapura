@@ -19,6 +19,16 @@ class TicketingStasiun extends Model
         'is_active',
     ];
 
+    public function ticketingBerangkatTiketKeretas()
+    {
+        return $this->hasMany(TicketingTiketKereta::class, 'tckt_stasiun_berangkat_id');
+    }
+
+    public function ticketingTibaTiketKeretas()
+    {
+        return $this->hasMany(TicketingTiketKereta::class, 'tckt_stasiun_tiba_id');
+    }
+
     // protected static function newFactory(): TicketingStasiunFactory
     // {
     //     // return TicketingStasiunFactory::new();

@@ -27,7 +27,7 @@ class TicketingDokumen extends Model
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'penumpang_dokumen');
+        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_penumpang_dokumen');
     }
 
     public function ticketingVendor()

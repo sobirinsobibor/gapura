@@ -21,6 +21,16 @@ class TicketingBandara extends Model
         'is_active',
     ];
 
+    public function ticketingBerangkatTiketPesawats()
+    {
+        return $this->hasMany(TicketingTiketPesawat::class, 'tckt_bandara_berangkat_id');
+    }
+
+    public function ticketingTibaTiketPesawats()
+    {
+        return $this->hasMany(TicketingTiketPesawat::class, 'tckt_bandara_tiba_id');
+    }
+
     // protected static function newFactory(): TicketingBandaraFactory
     // {
     //     // return TicketingBandaraFactory::new();

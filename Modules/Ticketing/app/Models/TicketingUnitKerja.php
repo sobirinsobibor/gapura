@@ -21,6 +21,21 @@ class TicketingUnitKerja extends Model
         'is_active',
     ];
 
+    public function ticketingPemesanans()
+    {
+        return $this->hasMany(TicketingPemesanan::class);
+    }
+
+    public function ticketingPembayarans()
+    {
+        return $this->hasMany(TicketingPembayaran::class);
+    }
+
+    public function ticketingPenumpangs()
+    {
+        return $this->hasMany(TicketingPenumpang::class);
+    }
+
     // protected static function newFactory(): TicketingUnitKerjaFactory
     // {
     //     // return TicketingUnitKerjaFactory::new();

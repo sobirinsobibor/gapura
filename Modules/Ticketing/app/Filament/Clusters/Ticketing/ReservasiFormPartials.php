@@ -80,12 +80,12 @@ class ReservasiFormPartials
                     ->options(self::statusOptions())
                     ->required(),
 
-                Select::make('kategori_pemesanan_id')
-                    ->label('Kategori Pemesanan')
-                    ->options(fn () => TicketingKategoriPemesanan::pluck('nama_kategori', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+                // Select::make('kategori_pemesanan_id')
+                //     ->label('Kategori Pemesanan')
+                //     ->options(fn () => TicketingKategoriPemesanan::pluck('nama_kategori', 'id'))
+                //     ->searchable()
+                //     ->preload()
+                //     ->required(),
             ]),
         ];
     }

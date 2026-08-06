@@ -25,7 +25,7 @@ class TicketingTiketKereta extends Model
         'zona_waktu'
     ];
 
-    public function ticketPemesanan()
+    public function ticketingPemesanan()
     {
         return $this->belongsTo(TicketingPemesanan::class);
     }
@@ -52,6 +52,6 @@ class TicketingTiketKereta extends Model
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'tckt_penumpang_tiket_kereta');
+        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_penumpang_tiket_kereta');
     }
 }

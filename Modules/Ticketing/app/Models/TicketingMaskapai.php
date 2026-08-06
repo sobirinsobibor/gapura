@@ -20,6 +20,11 @@ class TicketingMaskapai extends Model
         'is_active',
     ];
 
+    public function ticketingTiketPesawats()
+    {
+        return $this->hasMany(TicketingTiketPesawat::class);
+    }
+
     // protected static function newFactory(): TicketingMaskapaiFactory
     // {
     //     // return TicketingMaskapaiFactory::new();

@@ -19,6 +19,11 @@ class TicketingKereta extends Model
         'is_active',
     ];
 
+    public function ticketingTiketKeretas()
+    {
+        return $this->hasMany(TicketingTiketKereta::class);
+    }
+
     // protected static function newFactory(): TicketingKeretaFactory
     // {
     //     // return TicketingKeretaFactory::new();

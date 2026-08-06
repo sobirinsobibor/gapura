@@ -43,7 +43,7 @@ class TicketingKamarHotel extends Model
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'tckt_kamar_hotel_penumpang');
+        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_kamar_hotel_penumpang');
     }
 
 

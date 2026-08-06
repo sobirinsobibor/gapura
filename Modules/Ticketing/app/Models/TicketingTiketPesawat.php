@@ -56,6 +56,6 @@ class TicketingTiketPesawat extends Model
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'tckt_penumpang_tiket_pesawat');
+        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_penumpang_tiket_pesawat');
     }
 }

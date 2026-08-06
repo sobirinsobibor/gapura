@@ -25,17 +25,17 @@ class TicketingPenumpang extends Model
 
     public function ticketingTiketPesawat()
     {
-        return $this->belongsToMany(TicketingTiketPesawat::class, 'tckt_penumpang_tiket_pesawat');
+        return $this->belongsToMany(TicketingTiketPesawat::class, 'ticketing_penumpang_tiket_pesawat');
     }
 
     public function ticketingTiketKereta()
     {
-        return $this->belongsToMany(TicketingTiketKereta::class, 'tckt_penumpang_tiket_kereta');
+        return $this->belongsToMany(TicketingTiketKereta::class, 'ticketing_penumpang_tiket_kereta');
     }
 
     public function ticketingKamarHotel()
     {
-        return $this->belongsToMany(TicketingKamarHotel::class, 'tckt_kamar_hotel_penumpang');
+        return $this->belongsToMany(TicketingKamarHotel::class, 'ticketing_kamar_hotel_penumpang');
     }
 
     public function ticketingPembayaranPenumpang()

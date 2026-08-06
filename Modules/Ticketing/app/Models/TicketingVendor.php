@@ -20,6 +20,26 @@ class TicketingVendor extends Model
         'is_active',
     ];
 
+    public function ticketingTiketPesawats()
+    {
+        return $this->hasMany(TicketingTiketPesawat::class);
+    }
+
+    public function ticketingTiketKeretas()
+    {
+        return $this->hasMany(TicketingTiketKereta::class);
+    }
+
+    public function ticketingKamarHotels()
+    {
+        return $this->hasMany(TicketingKamarHotel::class);
+    }
+
+    public function ticketingDokumens()
+    {
+        return $this->hasMany(TicketingDokumen::class);
+    }
+
     // protected static function newFactory(): TicketingVendorFactory
     // {
     //     // return TicketingVendorFactory::new();
