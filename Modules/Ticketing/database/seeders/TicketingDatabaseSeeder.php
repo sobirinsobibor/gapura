@@ -3,6 +3,7 @@
 namespace Modules\Ticketing\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Ticketing\Models\TicketingKategoriPemesanan;
 
 class TicketingDatabaseSeeder extends Seeder
 {
@@ -11,6 +12,10 @@ class TicketingDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        foreach (['Ticket', 'Tour'] as $kategori) {
+            TicketingKategoriPemesanan::firstOrCreate(
+                ['nama_kategori' => $kategori]
+            );
+        }
     }
 }

@@ -10,6 +10,8 @@ class TicketingKamarHotel extends Model
 {
     use HasFactory;
 
+    protected $table ='ticketing_kamar_hotel';
+
     /**
      * The attributes that are mass assignable.
      */
@@ -28,22 +30,27 @@ class TicketingKamarHotel extends Model
 
     public function ticketingVendor()
     {
-        return $this->belongsTo(TicketingVendor::class);
+        return $this->belongsTo(TicketingVendor::class, 'tckt_vendor_id');
     }
 
     public function ticketingHotel()
     {
-        return $this->belongsTo(TicketingHotel::class);
+        return $this->belongsTo(TicketingHotel::class, 'tckt_hotel_id');
     }
 
     public function ticketingPemesanan()
     {
-        return $this->belongsTo(TicketingPemesanan::class);
+        return $this->belongsTo(TicketingPemesanan::class, 'tckt_pemesanan_id');
     }
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_kamar_hotel_penumpang');
+        return $this->belongsToMany(
+            TicketingPenumpang::class,
+            'ticketing_kamar_hotel_penumpang',
+            'tckt_kamar_hotel_id',
+            'tckt_penumpang_id'
+        );
     }
 
 

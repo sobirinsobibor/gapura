@@ -10,6 +10,8 @@ class TicketingPembayaranPenumpang extends Model
 {
     use HasFactory;
 
+    protected $table ='ticketing_pembayaran_penumpang';
+
     /**
      * The attributes that are mass assignable.
      */

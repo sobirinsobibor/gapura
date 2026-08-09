@@ -21,7 +21,7 @@ return new class extends Migration
                         ->name('fk_tckt_pembayaran');
 					$table->integer('jumlah_membayar');
 					// $table->string('status_penumpang');
-					$table->foreignId('user_id')->constrained();
+					$table->foreignId('user_id')->constrained('users');
 					$table->string('bukti_pembayaran')->nullable();
 					$table->date('tgl_membayar')->nullable();
                     $table->boolean('status_bukti_bayar')->nullable();

@@ -19,7 +19,4 @@ class UserCluster extends Cluster
     protected static ?int $navigationSort = null;
 
     protected static ?string $recordTitleAttribute = 'Pengguna';
-
-    //saya mau sidebarCollapsibleOnDesktop 
-    protected static bool $sidebarCollapsibleOnDesktop = true; // <- ini yang mungkin hilang/salah path
 }

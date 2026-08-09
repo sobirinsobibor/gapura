@@ -64,7 +64,8 @@ class RoleForm
                             }
                         })
                         ->dehydrated(false),
-                ]);
+                ])
+                ->columnSpanFull();
         }
 
         return $schema->components($components);

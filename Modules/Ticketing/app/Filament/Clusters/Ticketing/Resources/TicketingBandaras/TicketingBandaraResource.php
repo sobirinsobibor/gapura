@@ -4,6 +4,8 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\TicketingBanda
 
 use BackedEnum;
 use Filament\Resources\Resource;
+
+use App\Filament\Concerns\HasRbacPermission;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -18,6 +20,8 @@ use UnitEnum;
 
 class TicketingBandaraResource extends Resource
 {
+    use HasRbacPermission;
+
     protected static ?string $model = TicketingBandara::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

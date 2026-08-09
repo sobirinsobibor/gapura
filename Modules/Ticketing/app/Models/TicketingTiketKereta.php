@@ -10,6 +10,8 @@ class TicketingTiketKereta extends Model
 {
     use HasFactory;
 
+    protected $table ='ticketing_tiket_kereta';
+
     /**
      * The attributes that are mass assignable.
      */
@@ -22,22 +24,23 @@ class TicketingTiketKereta extends Model
         'kode_booking_kereta',
         'jadwal_berangkat_kereta',
         'jadwal_tiba_kereta',
-        'zona_waktu'
+        'zona_waktu',
+        'zona_waktu_kedatangan'
     ];
 
     public function ticketingPemesanan()
     {
-        return $this->belongsTo(TicketingPemesanan::class);
+        return $this->belongsTo(TicketingPemesanan::class, 'tckt_pemesanan_id');
     }
 
     public function ticketingVendor()
     {
-        return $this->belongsTo(TicketingVendor::class);
+        return $this->belongsTo(TicketingVendor::class, 'tckt_vendor_id');
     }
 
     public function ticketingKereta()
     {
-        return $this->belongsTo(TicketingKereta::class);
+        return $this->belongsTo(TicketingKereta::class, 'tckt_kereta_id');
     }
 
     public function ticketingBerangkatStasiun()
@@ -52,6 +55,11 @@ class TicketingTiketKereta extends Model
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_penumpang_tiket_kereta');
+        return $this->belongsToMany(
+            TicketingPenumpang::class,
+            'ticketing_penumpang_tiket_kereta',
+            'tckt_tiket_kereta_id',
+            'tckt_penumpang_id'
+        );
     }
 }

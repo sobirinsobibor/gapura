@@ -53,12 +53,12 @@ class TicketingPemesanan extends Model
 
     public function ticketingKategoriPemesanan()
     {
-        return $this->belongsTo(TicketingKategoriPemesanan::class);
+        return $this->belongsTo(TicketingKategoriPemesanan::class, 'tckt_kategori_pemesanan_id');
     }
 
     public function ticketingUnitKerja()
     {
-        return $this->belongsTo(TicketingUnitKerja::class);
+        return $this->belongsTo(TicketingUnitKerja::class, 'tckt_unit_kerja_id');
     }
 
     public function ticketingTiketPesawat()

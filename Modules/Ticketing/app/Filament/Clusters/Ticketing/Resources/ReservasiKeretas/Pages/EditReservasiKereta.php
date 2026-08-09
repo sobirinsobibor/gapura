@@ -49,6 +49,7 @@ class EditReservasiKereta extends EditRecord
             $data['jadwal_berangkat_kereta'] = $tiket->jadwal_berangkat_kereta;
             $data['jadwal_tiba_kereta'] = $tiket->jadwal_tiba_kereta;
             $data['zona_waktu'] = $tiket->zona_waktu;
+            $data['zona_waktu_kedatangan'] = $tiket->zona_waktu_kedatangan;
         }
 
         return $data;

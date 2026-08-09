@@ -29,16 +29,7 @@ class ReservasiKeretaForm
     public static function kolomKereta(): array
     {
         return [
-            Grid::make(3)->schema([
-                Select::make('vendor_id')
-                    ->label('Vendor')
-                    ->options(fn () => \Modules\Ticketing\Models\TicketingVendor::query()
-                        ->where('jenis_vendor', 2)
-                        ->pluck('nama_vendor', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
+            Grid::make(2)->schema([
                 Select::make('kereta_id')
                     ->label('Kereta')
                     ->options(fn () => TicketingKereta::query()
@@ -53,6 +44,8 @@ class ReservasiKeretaForm
                     ->required()
                     ->maxLength(255),
 
+               
+
                 Select::make('stasiun_berangkat_id')
                     ->label('Stasiun Berangkat')
                     ->options(fn () => TicketingStasiun::query()
@@ -61,6 +54,16 @@ class ReservasiKeretaForm
                     ->searchable()
                     ->preload()
                     ->required(),
+
+                Grid::make(2)
+                    ->schema([
+                        DateTimePicker::make('jadwal_berangkat_kereta')
+                            ->label('Waktu Berangkat')
+                            ->seconds(false)
+                            ->required(),
+
+                        ReservasiFormPartials::kolomZonaWaktuKeberangkatan(),
+                    ]),
 
                 Select::make('stasiun_tiba_id')
                     ->label('Stasiun Tiba')
@@ -71,17 +74,27 @@ class ReservasiKeretaForm
                     ->preload()
                     ->required(),
 
-                DateTimePicker::make('jadwal_berangkat_kereta')
-                    ->label('Waktu Berangkat')
-                    ->seconds(false)
-                    ->required(),
+                Grid::make(2)
+                    ->schema([
+                        DateTimePicker::make('jadwal_tiba_kereta')
+                            ->label('Waktu Tiba')
+                            ->seconds(false)
+                            ->required(),
 
-                DateTimePicker::make('jadwal_tiba_kereta')
-                    ->label('Waktu Tiba')
-                    ->seconds(false)
-                    ->required(),
+                        ReservasiFormPartials::kolomZonaWaktuKedatangan(),
+                    ]),
 
-                ReservasiFormPartials::kolomZonaWaktu(),
+                Select::make('vendor_id')
+                    ->label('Vendor')
+                    ->options(fn () => \Modules\Ticketing\Models\TicketingVendor::query()
+                        ->where('jenis_vendor', 2)
+                        ->pluck('nama_vendor', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                
+
+                
             ]),
         ];
     }

@@ -21,17 +21,17 @@ class TicketingUnitKerja extends Model
         'is_active',
     ];
 
-    public function ticketingPemesanans()
+    public function ticketingPemesanan()
     {
         return $this->hasMany(TicketingPemesanan::class);
     }
 
-    public function ticketingPembayarans()
+    public function ticketingPembayaran()
     {
         return $this->hasMany(TicketingPembayaran::class);
     }
 
-    public function ticketingPenumpangs()
+    public function ticketingPenumpang()
     {
         return $this->hasMany(TicketingPenumpang::class);
     }

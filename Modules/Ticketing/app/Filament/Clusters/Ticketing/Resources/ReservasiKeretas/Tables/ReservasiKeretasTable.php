@@ -4,7 +4,10 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeret
 
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilter;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeretas\ReservasiKeretaResource;
 
 class ReservasiKeretasTable
@@ -15,37 +18,52 @@ class ReservasiKeretasTable
             ->striped()
             ->recordAction(null)
             ->defaultSort('created_at', 'desc')
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersFormColumns(3)
             ->columns([
                 TextColumn::make('#')->rowIndex(),
 
-                TextColumn::make('invoice')
+                TextColumn::make('ticketingPemesanan.invoice')
                     ->label('Invoice')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('tanggal_pemesanan')
+                TextColumn::make('ticketingPemesanan.tanggal_pemesanan')
                     ->label('Tanggal')
                     ->date('d-m-Y')
                     ->sortable(),
 
-                TextColumn::make('nama_customer')
+                TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->searchable(),
 
-                TextColumn::make('ticketingUnitKerja.nama_unit_kerja')
+                TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
                     ->searchable(),
 
-                TextColumn::make('ticketingTiketKereta.ticketingKereta.nama_kereta')
+                TextColumn::make('ticketingKereta.nama_kereta')
                     ->label('Kereta')
                     ->searchable(),
 
-                TextColumn::make('harga_jual')
+                TextColumn::make('ticketingBerangkatStasiun.kode_stasiun')
+                    ->label('Keberangkatan')
+                    ->searchable(),
+
+                TextColumn::make('ticketingTibaStasiun.kode_stasiun')
+                    ->label('Kedatangan')
+                    ->searchable(),
+
+                TextColumn::make('jadwal_berangkat_kereta')
+                    ->label('Berangkat')
+                    ->dateTime('d-m-Y H:i')
+                    ->sortable(),
+
+                TextColumn::make('ticketingPemesanan.harga_jual')
                     ->label('Harga Jual')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
                     ->sortable(),
 
-                TextColumn::make('status_pemesanan')
+                TextColumn::make('ticketingPemesanan.status_pemesanan')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -55,12 +73,15 @@ class ReservasiKeretasTable
                     })
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                TanggalPemesananFilter::make(),
+                KategoriPemesananFilter::make(),
+            ])
             ->recordActions([
                 EditAction::make()
                     ->button()
                     ->hiddenLabel()
-                    ->url(fn ($record) => ReservasiKeretaResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn ($record) => ReservasiKeretaResource::getUrl('edit', ['record' => $record->ticketingPemesanan])),
             ])
             ->toolbarActions([]);
     }

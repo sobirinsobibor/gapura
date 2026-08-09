@@ -4,12 +4,15 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesaw
 
 use BackedEnum;
 use Filament\Resources\Resource;
+
+use App\Filament\Concerns\HasRbacPermission;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages\CreateReservasiPesawat;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages\EditReservasiPesawat;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages\ListReservasiPesawats;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\RelationManagers\PenumpangPesawatRelationManager;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Schemas\ReservasiPesawatForm;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Tables\ReservasiPesawatsTable;
 use Modules\Ticketing\Filament\Clusters\Ticketing\TicketingCluster;
@@ -18,6 +21,8 @@ use UnitEnum;
 
 class ReservasiPesawatResource extends Resource
 {
+    use HasRbacPermission;
+
     protected static ?string $model = TicketingPemesanan::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRocketLaunch;
@@ -43,7 +48,7 @@ class ReservasiPesawatResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PenumpangPesawatRelationManager::class,
         ];
     }
 

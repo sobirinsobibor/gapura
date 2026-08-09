@@ -19,8 +19,17 @@ class CreateReservasiDokumen extends CreateRecord
         return app(ReservasiDokumenService::class)->create($data);
     }
 
+    //cancreate another
+    
+
     // protected function getRedirectUrl(): string
     // {
     //     return $this->getResource()::getUrl('edit', ['record' => $this->record]);
     // }
+
+    // #[Override]
+    public function canCreateAnother(): bool
+    {
+        return false;
+    }
 }

@@ -41,6 +41,7 @@ class ReservasiKeretaService extends ReservasiService
                 'jadwal_berangkat_kereta' => $this->normalizeDateTime($data['jadwal_berangkat_kereta'] ?? null),
                 'jadwal_tiba_kereta' => $this->normalizeDateTime($data['jadwal_tiba_kereta'] ?? null),
                 'zona_waktu' => $data['zona_waktu'] ?? null,
+                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? null,
             ]);
 
             return $pemesanan;
@@ -85,6 +86,7 @@ class ReservasiKeretaService extends ReservasiService
                 'jadwal_tiba_kereta' => $this->normalizeDateTime($data['jadwal_tiba_kereta'] ?? null)
                     ?? $tiket?->jadwal_tiba_kereta,
                 'zona_waktu' => $data['zona_waktu'] ?? $tiket?->zona_waktu,
+                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? $tiket?->zona_waktu_kedatangan,
             ];
             if ($tiket) {
                 $tiket->update($dataTiket);

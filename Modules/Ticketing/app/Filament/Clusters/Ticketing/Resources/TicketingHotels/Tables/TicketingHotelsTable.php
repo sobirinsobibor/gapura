@@ -24,6 +24,7 @@ class TicketingHotelsTable
                     ->searchable(),
                 TextColumn::make('alamat')
                     ->label('Alamat')
+                    ->wrap()
                     ->searchable(),
                 ToggleColumn::make('is_active')
                     ->label('Aktif')

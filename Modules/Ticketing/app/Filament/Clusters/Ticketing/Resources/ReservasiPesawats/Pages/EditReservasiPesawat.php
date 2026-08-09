@@ -36,6 +36,7 @@ class EditReservasiPesawat extends EditRecord
         $data['harga_beli'] = $record->harga_beli;
         $data['harga_publish'] = $record->harga_publish;
         $data['harga_jual'] = $record->harga_jual;
+        $data['pulang_pergi'] = $record->pulang_pergi;
 
         $data['nama_pembayar'] = $pembayaran?->nama_pembayar;
         $data['unit_kerja_pembayar'] = $pembayaran?->tckt_unit_kerja_id;
@@ -52,7 +53,15 @@ class EditReservasiPesawat extends EditRecord
             $data['jadwal_berangkat_pesawat'] = $tiket->jadwal_berangkat_pesawat;
             $data['jadwal_tiba_pesawat'] = $tiket->jadwal_tiba_pesawat;
             $data['zona_waktu'] = $tiket->zona_waktu;
-            $data['detail_pulang_pergi'] = json_decode((string) $tiket->detail_pulang_pergi, true) ?: [];
+            $data['zona_waktu_kedatangan'] = $tiket->zona_waktu_kedatangan;
+
+            $detailPulangPergi = json_decode((string) $tiket->detail_pulang_pergi, true) ?: [];
+            if (isset($detailPulangPergi['segmen']) && is_array($detailPulangPergi['segmen'])) {
+                $data['status_pemesanan_pulang_pergi'] = $detailPulangPergi['status_pemesanan_pulang_pergi'] ?? null;
+                $data['detail_pulang_pergi'] = ['segmen' => $detailPulangPergi['segmen']];
+            } else {
+                $data['detail_pulang_pergi'] = ['segmen' => $detailPulangPergi];
+            }
         }
 
         return $data;

@@ -12,7 +12,7 @@ class ReservasiPesawatService extends ReservasiService
     public function create(array $data): TicketingPemesanan
     {
         return DB::transaction(function () use ($data) {
-            $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi'] ?? []);
+            $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi']['segmen'] ?? []);
 
             $pemesanan = TicketingPemesanan::create([
                 'invoice' => $this->generateInvoiceNumber('1'),
@@ -20,7 +20,7 @@ class ReservasiPesawatService extends ReservasiService
                 'tckt_kategori_pemesanan_id' => $data['kategori_pemesanan_id'] ?? null,
                 'tckt_unit_kerja_id' => $data['unit_kerja_pemesan'] ?? null,
                 'status_pemesanan' => $data['status_pemesanan'] ?? null,
-                'pulang_pergi' => count($segmenPulang) > 0 ? 1 : 0,
+                'pulang_pergi' => (int) ($data['pulang_pergi'] ?? 0),
                 'tanggal_pemesanan' => $this->toDate($data['tanggal_pemesanan'] ?? null),
                 'harga_beli' => $this->toInteger($data['harga_beli'] ?? null),
                 'harga_publish' => $this->toInteger($data['harga_publish'] ?? null),
@@ -46,7 +46,8 @@ class ReservasiPesawatService extends ReservasiService
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($data['jadwal_berangkat_pesawat'] ?? null),
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($data['jadwal_tiba_pesawat'] ?? null),
                 'zona_waktu' => $data['zona_waktu'] ?? null,
-                'detail_pulang_pergi' => count($segmenPulang) > 0 ? json_encode($segmenPulang) : null,
+                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? null,
+                'detail_pulang_pergi' => $this->detailPulangPergi($data, $segmenPulang),
             ]);
 
             return $pemesanan;
@@ -56,14 +57,14 @@ class ReservasiPesawatService extends ReservasiService
     public function update(TicketingPemesanan $pemesanan, array $data): TicketingPemesanan
     {
         return DB::transaction(function () use ($pemesanan, $data) {
-            $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi'] ?? []);
+            $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi']['segmen'] ?? []);
 
             $pemesanan->update([
                 'nama_customer' => $data['nama_customer'] ?? $pemesanan->nama_customer,
                 'tckt_kategori_pemesanan_id' => $data['kategori_pemesanan_id'] ?? $pemesanan->tckt_kategori_pemesanan_id,
                 'tckt_unit_kerja_id' => $data['unit_kerja_pemesan'] ?? $pemesanan->tckt_unit_kerja_id,
                 'status_pemesanan' => $data['status_pemesanan'] ?? $pemesanan->status_pemesanan,
-                'pulang_pergi' => count($segmenPulang) > 0 ? 1 : 0,
+                'pulang_pergi' => (int) ($data['pulang_pergi'] ?? $pemesanan->pulang_pergi),
                 'tanggal_pemesanan' => $this->toDate($data['tanggal_pemesanan'] ?? $pemesanan->tanggal_pemesanan),
                 'harga_beli' => $this->toInteger($data['harga_beli'] ?? $pemesanan->harga_beli),
                 'harga_publish' => $this->toInteger($data['harga_publish'] ?? $pemesanan->harga_publish),
@@ -97,7 +98,8 @@ class ReservasiPesawatService extends ReservasiService
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($data['jadwal_tiba_pesawat'] ?? null)
                     ?? $tiket?->jadwal_tiba_pesawat,
                 'zona_waktu' => $data['zona_waktu'] ?? $tiket?->zona_waktu,
-                'detail_pulang_pergi' => count($segmenPulang) > 0 ? json_encode($segmenPulang) : null,
+                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? $tiket?->zona_waktu_kedatangan,
+                'detail_pulang_pergi' => $this->detailPulangPergi($data, $segmenPulang),
             ];
             if ($tiket) {
                 $tiket->update($dataTiket);
@@ -120,7 +122,6 @@ class ReservasiPesawatService extends ReservasiService
             ->filter()
             ->values()
             ->map(fn (array $row) => [
-                'status_pemesanan' => $row['status_pemesanan'] ?? null,
                 'maskapai_id' => $row['maskapai_id'] ?? null,
                 'vendor_id' => $row['vendor_id'] ?? null,
                 'bandara_berangkat_id' => $row['bandara_berangkat_id'] ?? null,
@@ -132,7 +133,20 @@ class ReservasiPesawatService extends ReservasiService
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($row['jadwal_berangkat_pesawat'] ?? null),
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($row['jadwal_tiba_pesawat'] ?? null),
                 'zona_waktu' => $row['zona_waktu'] ?? null,
+                'zona_waktu_kedatangan' => $row['zona_waktu_kedatangan'] ?? null,
             ])
             ->all();
+    }
+
+    private function detailPulangPergi(array $data, array $segmenPulang): ?string
+    {
+        if ((int) ($data['pulang_pergi'] ?? 0) !== 1 || empty($segmenPulang)) {
+            return null;
+        }
+
+        return json_encode([
+            'status_pemesanan_pulang_pergi' => $data['status_pemesanan_pulang_pergi'] ?? null,
+            'segmen' => $segmenPulang,
+        ]);
     }
 }

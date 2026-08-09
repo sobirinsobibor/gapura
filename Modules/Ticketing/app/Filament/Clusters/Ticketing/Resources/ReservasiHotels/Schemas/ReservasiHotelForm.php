@@ -9,6 +9,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use Modules\Ticketing\Filament\Clusters\Ticketing\ReservasiFormPartials;
 use Modules\Ticketing\Models\TicketingHotel;
 use Modules\Ticketing\Models\TicketingVendor;
@@ -30,15 +31,8 @@ class ReservasiHotelForm
     public static function kolomHotel(): array
     {
         return [
-            Grid::make(3)->schema([
-                Select::make('vendor_id')
-                    ->label('Vendor')
-                    ->options(fn () => TicketingVendor::query()
-                        ->where('jenis_vendor', 3)
-                        ->pluck('nama_vendor', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+            Grid::make(2)->schema([
+                
 
                 Select::make('hotel_id')
                     ->label('Hotel')
@@ -56,24 +50,28 @@ class ReservasiHotelForm
 
                 TextInput::make('lama_menginap')
                     ->label('Lama Menginap (hari)')
-                    ->numeric()
+                    ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters('.')
+                    ->dehydrateStateUsing(fn ($state) => (int) str_replace('.', '', $state))
                     ->minValue(1)
                     ->required(),
 
                 TextInput::make('jumlah_kamar')
                     ->label('Jumlah Kamar')
-                    ->numeric()
+                    ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters('.')
+                    ->dehydrateStateUsing(fn ($state) => (int) str_replace('.', '', $state))
                     ->minValue(1)
                     ->required(),
 
-                Toggle::make('include_breakfast')
-                    ->label('Termasuk Sarapan')
-                    ->default(false),
+                
 
                 DateTimePicker::make('jadwal_checkin')
                     ->label('Waktu Check-in')
                     ->seconds(false)
                     ->required(),
+
+                ReservasiFormPartials::kolomZonaWaktu(),
 
                 DateTimePicker::make('jadwal_checkout')
                     ->label('Waktu Check-out')
@@ -81,6 +79,22 @@ class ReservasiHotelForm
                     ->required(),
 
                 ReservasiFormPartials::kolomZonaWaktu(),
+
+                Select::make('include_breakfast')
+                    ->label('Termasuk Sarapan')
+                    ->options([
+                        1 => 'Ya',
+                        0 => 'Tidak'
+                    ]),
+
+                Select::make('vendor_id')
+                    ->label('Vendor')
+                    ->options(fn () => TicketingVendor::query()
+                        ->where('jenis_vendor', 3)
+                        ->pluck('nama_vendor', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
             ]),
         ];
     }

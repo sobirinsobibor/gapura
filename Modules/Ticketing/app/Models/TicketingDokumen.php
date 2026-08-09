@@ -10,6 +10,8 @@ class TicketingDokumen extends Model
 {
     use HasFactory;
 
+    protected $table = 'ticketing_dokumen';
+
     /**
      * The attributes that are mass assignable.
      */
@@ -22,16 +24,21 @@ class TicketingDokumen extends Model
 
     public function ticketingPemesanan()
     {
-        return $this->belongsTo(TicketingPemesanan::class);
+        return $this->belongsTo(TicketingPemesanan::class, 'tckt_pemesanan_id');
     }
 
     public function ticketingPenumpang()
     {
-        return $this->belongsToMany(TicketingPenumpang::class, 'ticketing_penumpang_dokumen');
+        return $this->belongsToMany(
+            TicketingPenumpang::class,
+            'ticketing_penumpang_dokumen',
+            'tckt_dokumen_id',
+            'tckt_penumpang_id'
+        );
     }
 
     public function ticketingVendor()
     {
-        return $this->belongsTo(TicketingVendor::class);
+        return $this->belongsTo(TicketingVendor::class, 'tckt_vendor_id');
     }
 }

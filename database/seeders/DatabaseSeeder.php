@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             RolePermissionSeeder::class,
+            \Modules\Ticketing\Database\Seeders\TicketingDatabaseSeeder::class,
         ]);
     }
 }

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->dateTime('jadwal_checkin');
             $table->dateTime('jadwal_checkout');
             $table->boolean('include_breakfast');
+            $table->string('zona_waktu')->nullable();
             $table->timestamps();
         });
     }

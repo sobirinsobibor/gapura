@@ -10,8 +10,6 @@ class UserPlugin implements Plugin
 {
     use ModuleFilamentPlugin;
 
-    protected static bool $sidebarCollapsibleOnDesktop = true; // <- ini yang mungkin hilang/salah path
-
     public function getModuleName(): string
     {
         return 'User';

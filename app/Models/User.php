@@ -89,30 +89,35 @@ class User extends Authenticatable
 
     public function canAccess(string $permissionName): bool
     {
-        $role = $this->activeRole;
-
-        if (! $role || ! $role->is_active) {
-            return false;
+        if ($this->isSuperAdmin()) {
+            return true;
         }
 
-        $cacheKey = "user:{$this->id}:active_role:{$role->id}:permissions";
+        $cacheKey = "user:{$this->id}:permissions";
 
-        $permissions = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($role) {
-            $userHasRole = $this->roles()
-                ->where('roles.id', $role->id)
-                ->exists();
-
-
-            if (! $userHasRole) {
-                return [];
-            }
-
-            return $role->permissions()
-                ->pluck('name')
+        $permissions = Cache::remember($cacheKey, now()->addMinutes(10), function () {
+            return $this->roles()
+                ->where('roles.is_active', true)
+                ->with('permissions')
+                ->get()
+                ->flatMap(fn (Role $role) => $role->permissions->pluck('name'))
+                ->unique()
                 ->toArray();
         });
 
         return in_array($permissionName, $permissions, true);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles()
+            ->where('roles.name', 'Super-admin')
+            ->exists();
+    }
+
+    public function forgetAccessCache(): void
+    {
+        Cache::forget("user:{$this->id}:permissions");
     }
 
     public function setActiveRole(int $roleId): void

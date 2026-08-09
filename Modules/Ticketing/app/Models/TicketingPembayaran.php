@@ -10,6 +10,8 @@ class TicketingPembayaran extends Model
 {
     use HasFactory;
 
+    protected $table ='ticketing_pembayaran';
+
     /**
      * The attributes that are mass assignable.
      */
@@ -26,7 +28,7 @@ class TicketingPembayaran extends Model
 
     public function ticketingUnitKerja()
     {
-        return $this->belongsTo(TicketingUnitKerja::class);
+        return $this->belongsTo(TicketingUnitKerja::class, 'tckt_unit_kerja_id');
     }
 
     public function ticketingPembayaranPenumpang()

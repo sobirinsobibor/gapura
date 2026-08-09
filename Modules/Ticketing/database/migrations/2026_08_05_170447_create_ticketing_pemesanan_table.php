@@ -27,9 +27,12 @@ return new class extends Migration
             // $table->boolean('transit');
             $table->date('tanggal_pemesanan');
             $table->bigInteger('harga_beli');
-            $table->bigInteger('harga_publish');
+            $table->bigInteger('harga_publish')->nullable();
             $table->bigInteger('harga_jual');
-            // $table->date('jatuh_tempo');
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

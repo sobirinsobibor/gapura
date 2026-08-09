@@ -13,57 +13,59 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // =========================
-        // CREATE PERMISSIONS
+        // CREATE PERMISSIONS (auto from Filament resources)
         // =========================
-        $permissionMap = [
-            'Pengguna' => [
-                    'akun.view', 'akun.create', 'akun.edit', 'akun.delete',
-                    'akses.view', 'akses.create', 'akses.edit', 'akses.delete'
-                ],
-        ];
+        $this->command?->info('Men-generate permission dari resource Filament...');
 
-        $allPermissions = [];
+        $permissions = [];
 
-        foreach ($permissionMap as $group => $actions) {
-            foreach ($actions as $action) {
-                $name = Str::slug($group, '_') . '.' . $action;
+        foreach (filament()->getResources() as $resource) {
+            $groupName = $resource::getRbacGroupLabel();
+            $groupSlug = $resource::getRbacGroup();
+            $resourceSlug = $resource::getRbacResource();
 
+            $this->command?->line("  - {$groupName} / {$resourceSlug}");
+
+            foreach ($resource::getRbacPermissionNames() as $action => $name) {
                 $permission = Permission::updateOrCreate(
                     ['name' => $name],
                     [
-                        'display_name' => Str::headline($action),
-                        'description' => Str::headline($action) . ' ' . $group,
-                        'group_name' => $group,
+                        'display_name' => Str::headline($action) . ' ' . Str::headline($resourceSlug),
+                        'description' => Str::headline($action) . ' data ' . Str::headline($resourceSlug) . ' (' . Str::headline($groupName) . ')',
+                        'group_name' => $groupName,
                         'is_active' => true,
                     ]
                 );
 
-                $allPermissions[$group][$action] = $permission->id;
+                $permissions[$name] = $permission->id;
             }
         }
 
-        // =========================
-        // CREATE SUPER ADMIN ROLE
-        // =========================
+        // =========================================================
+        // 2. CREATE/UPDATE SUPER ADMIN ROLE
+        // =========================================================
         $superAdmin = Role::updateOrCreate(
             ['name' => 'Super-admin'],
-            ['is_active' => true]
+            [
+                'display_name' => 'Super Admin',
+                'description' => 'Memiliki seluruh izin akses',
+                'is_active' => true,
+            ]
         );
 
         // Assign all permissions to Super Admin
-        $superAdmin->permissions()->sync(
-            collect($allPermissions)->flatten()->values()->toArray()
-        );
+        $superAdmin->permissions()->sync(array_values($permissions));
 
-        // =========================
-        // ASSIGN USER ID 1 → SUPER ADMIN
-        // =========================
+        // =========================================================
+        // 3. ASSIGN USER ID 1 → SUPER ADMIN
+        // =========================================================
         $user = User::find(1);
         $role = Role::where('name', 'Super-admin')->first();
 
         if ($user && $role) {
             // Clear all existing roles and assign Super Admin
             $user->roles()->sync([$role->id]);
+            $user->forgetAccessCache();
         }
     }
 }

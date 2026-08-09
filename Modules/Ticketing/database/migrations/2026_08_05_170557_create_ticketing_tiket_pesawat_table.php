@@ -36,6 +36,8 @@ return new class extends Migration
             $table->dateTime('jadwal_berangkat_pesawat');
             $table->dateTime('jadwal_tiba_pesawat');
             $table->text('detail_pulang_pergi')->nullable();
+            $table->string('zona_waktu')->nullable();
+            $table->string('zona_waktu_kedatangan')->nullable();
             $table->timestamps();
         });
     }

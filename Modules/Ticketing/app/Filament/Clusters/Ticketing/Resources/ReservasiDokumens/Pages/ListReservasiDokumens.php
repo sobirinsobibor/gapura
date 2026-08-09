@@ -4,15 +4,33 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiDokum
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ListsReservasiByEntity;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiDokumens\ReservasiDokumenResource;
+use Modules\Ticketing\Models\TicketingDokumen;
 
 class ListReservasiDokumens extends ListRecords
 {
+    use ListsReservasiByEntity;
+
     protected static string $resource = ReservasiDokumenResource::class;
+
+    protected function getReservasiAnchorModel(): string
+    {
+        return TicketingDokumen::class;
+    }
+
+    protected function getReservasiExportColumns(): array
+    {
+        return array_merge($this->reservasiBaseExportColumns(), [
+            'jenis_dokumen' => 'Jenis Dokumen',
+            'keterangan' => 'Keterangan',
+        ]);
+    }
 
     protected function getHeaderActions(): array
     {
         return [
+            $this->exportReservasiAction(),
             CreateAction::make()
                 ->label('+ Tambah')
                 ->button()

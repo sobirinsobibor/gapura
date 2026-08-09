@@ -4,12 +4,15 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotel
 
 use BackedEnum;
 use Filament\Resources\Resource;
+
+use App\Filament\Concerns\HasRbacPermission;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Pages\CreateReservasiHotel;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Pages\EditReservasiHotel;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Pages\ListReservasiHotels;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\RelationManagers\PenumpangHotelRelationManager;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Schemas\ReservasiHotelForm;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Tables\ReservasiHotelsTable;
 use Modules\Ticketing\Filament\Clusters\Ticketing\TicketingCluster;
@@ -18,6 +21,8 @@ use UnitEnum;
 
 class ReservasiHotelResource extends Resource
 {
+    use HasRbacPermission;
+
     protected static ?string $model = TicketingPemesanan::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
@@ -43,7 +48,7 @@ class ReservasiHotelResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PenumpangHotelRelationManager::class,
         ];
     }
 

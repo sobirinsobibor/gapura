@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Modules\Ticketing\Filament\Clusters\Ticketing\ReservasiFormPartials;
 use Modules\Ticketing\Models\TicketingBandara;
@@ -24,36 +25,51 @@ class ReservasiPesawatForm
                 Section::make('Pemesan')->schema(ReservasiFormPartials::kolomPemesan()),
                 Section::make('Pembayar')->schema(ReservasiFormPartials::kolomPembayar()),
                 Section::make('Harga')->schema(ReservasiFormPartials::kolomHarga()),
+                Section::make('Round Trip')->schema(self::kolomRoundTrip()),
                 Section::make('Maskapai Pergi (Keberangkatan)')->schema(self::kolomPenerbangan()),
                 Section::make('Segmen Pulang (Round Trip)')->schema([
-                    Repeater::make('detail_pulang_pergi')
+                    Repeater::make('detail_pulang_pergi.segmen')
                         ->label('Segmen Penerbangan Pulang')
                         ->schema(self::segmenPulangSchema())
-                        ->grid(2)
                         ->defaultItems(0)
                         ->addActionLabel('+ Tambah Segmen Pulang')
                         ->reorderable()
-                        ->collapsible(),
-                ]),
+                        ->columnSpanFull()
+                        ->collapsible()
+                        ->visible(fn (Get $get) => (int) ($get('pulang_pergi') ?? 0) === 1),
+                ])
+                ->columnSpanFull(),
             ]);
+    }
+
+    public static function kolomRoundTrip(): array
+    {
+        return [
+            Grid::make(2)->schema([
+                Select::make('pulang_pergi')
+                    ->label('Round Trip')
+                    ->options([1 => 'Ya', 0 => 'Tidak'])
+                    ->default(0)
+                    ->live()
+                    ->required(),
+
+                Select::make('status_pemesanan_pulang_pergi')
+                    ->label('Status')
+                    ->options(ReservasiFormPartials::statusOptions())
+                    ->required(),
+            ]),
+        ];
     }
 
     public static function kolomPenerbangan(): array
     {
-        return self::segmenPulangSchema(false);
+        return self::segmenPulangSchema();
     }
 
-    public static function segmenPulangSchema(bool $denganStatus = true): array
+    public static function segmenPulangSchema(): array
     {
         return [
-            Grid::make(3)->schema(array_filter([
-                $denganStatus
-                    ? Select::make('status_pemesanan')
-                        ->label('Status')
-                        ->options(ReservasiFormPartials::statusOptions())
-                        ->required()
-                    : null,
-
+            Grid::make(2)->schema([
                 Select::make('maskapai_id')
                     ->label('Maskapai')
                     ->options(fn () => TicketingMaskapai::query()
@@ -62,38 +78,6 @@ class ReservasiPesawatForm
                     ->searchable()
                     ->preload()
                     ->required(),
-
-                Select::make('vendor_id')
-                    ->label('Vendor')
-                    ->options(fn () => TicketingVendor::query()
-                        ->where('jenis_vendor', 1)
-                        ->pluck('nama_vendor', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                Select::make('bandara_berangkat_id')
-                    ->label('Bandara Asal')
-                    ->options(fn () => TicketingBandara::query()
-                        ->where('is_active', true)
-                        ->pluck('nama_bandara', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                Select::make('bandara_tiba_id')
-                    ->label('Bandara Tujuan')
-                    ->options(fn () => TicketingBandara::query()
-                        ->where('is_active', true)
-                        ->pluck('nama_bandara', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                TextInput::make('kelas')
-                    ->label('Kelas')
-                    ->required()
-                    ->maxLength(255),
 
                 TextInput::make('nomor_ticket')
                     ->label('Nomor Tiket')
@@ -110,18 +94,58 @@ class ReservasiPesawatForm
                     ->required()
                     ->maxLength(255),
 
-                DateTimePicker::make('jadwal_berangkat_pesawat')
-                    ->label('Waktu Keberangkatan')
-                    ->seconds(false)
+                Select::make('bandara_berangkat_id')
+                    ->label('Bandara Asal')
+                    ->options(fn () => TicketingBandara::query()
+                        ->where('is_active', true)
+                        ->pluck('nama_bandara', 'id'))
+                    ->searchable()
+                    ->preload()
                     ->required(),
 
-                DateTimePicker::make('jadwal_tiba_pesawat')
-                    ->label('Waktu Tiba')
-                    ->seconds(false)
+                Grid::make(2)
+                    ->schema([
+                        DateTimePicker::make('jadwal_berangkat_pesawat')
+                            ->label('Waktu Keberangkatan')
+                            ->seconds(false)
+                            ->required(),
+
+                        ReservasiFormPartials::kolomZonaWaktuKeberangkatan(),
+                    ]),
+
+                Select::make('bandara_tiba_id')
+                    ->label('Bandara Tujuan')
+                    ->options(fn () => TicketingBandara::query()
+                        ->where('is_active', true)
+                        ->pluck('nama_bandara', 'id'))
+                    ->searchable()
+                    ->preload()
                     ->required(),
 
-                ReservasiFormPartials::kolomZonaWaktu(),
-            ])),
+                Grid::make(2)
+                    ->schema([
+                        DateTimePicker::make('jadwal_tiba_pesawat')
+                            ->label('Waktu Kedatangan')
+                            ->seconds(false)
+                            ->required(),
+
+                        ReservasiFormPartials::kolomZonaWaktuKedatangan(),
+                    ]),
+
+                TextInput::make('kelas')
+                    ->label('Kelas')
+                    ->required()
+                    ->maxLength(255),
+
+                Select::make('vendor_id')
+                    ->label('Vendor')
+                    ->options(fn () => TicketingVendor::query()
+                        ->where('jenis_vendor', 1)
+                        ->pluck('nama_vendor', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+            ]),
         ];
     }
 }

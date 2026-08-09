@@ -32,6 +32,8 @@ return new class extends Migration
             $table->dateTime('jadwal_berangkat_kereta');
             $table->dateTime('jadwal_tiba_kereta');
             // $table->string('jenis_tiket_kereta');
+            $table->string('zona_waktu')->nullable();
+            $table->string('zona_waktu_kedatangan')->nullable();
             $table->timestamps();
         });
     }

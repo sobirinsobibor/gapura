@@ -5,6 +5,8 @@ namespace Modules\User\Filament\Clusters\User\Resources\Roles;
 use App\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
+
+use App\Filament\Concerns\HasRbacPermission;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -19,6 +21,8 @@ use Modules\User\Filament\Clusters\User\UserCluster;
 
 class RoleResource extends Resource
 {
+    use HasRbacPermission;
+
     protected static ?string $model = Role::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
