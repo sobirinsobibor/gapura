@@ -4,6 +4,7 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeret
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ListsReservasiByEntity;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeretas\ReservasiKeretaResource;
 use Modules\Ticketing\Models\TicketingTiketKereta;
@@ -13,6 +14,11 @@ class ListReservasiKeretas extends ListRecords
     use ListsReservasiByEntity;
 
     protected static string $resource = ReservasiKeretaResource::class;
+
+    protected function getTableQuery(): Builder
+    {
+        return ReservasiKeretaResource::getReservasiKeretaListQuery();
+    }
 
     protected function getReservasiAnchorModel(): string
     {

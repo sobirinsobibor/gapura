@@ -9,7 +9,7 @@ use Modules\Ticketing\Models\TicketingTiketPesawat;
 
 class ReservasiPesawatService extends ReservasiService
 {
-    public function create(array $data): TicketingPemesanan
+    public function create(array $data): TicketingTiketPesawat
     {
         return DB::transaction(function () use ($data) {
             $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi']['segmen'] ?? []);
@@ -33,7 +33,7 @@ class ReservasiPesawatService extends ReservasiService
                 'nama_pembayar' => $data['nama_pembayar'] ?? null,
             ]);
 
-            TicketingTiketPesawat::create([
+            $tiket = TicketingTiketPesawat::create([
                 'tckt_pemesanan_id' => $pemesanan->id,
                 'tckt_maskapai_id' => $data['maskapai_id'] ?? null,
                 'tckt_vendor_id' => $data['vendor_id'] ?? null,
@@ -50,14 +50,16 @@ class ReservasiPesawatService extends ReservasiService
                 'detail_pulang_pergi' => $this->detailPulangPergi($data, $segmenPulang),
             ]);
 
-            return $pemesanan;
+            return $tiket;
         });
     }
 
-    public function update(TicketingPemesanan $pemesanan, array $data): TicketingPemesanan
+    public function update(TicketingTiketPesawat $tiket, array $data): TicketingTiketPesawat
     {
-        return DB::transaction(function () use ($pemesanan, $data) {
+        return DB::transaction(function () use ($tiket, $data) {
             $segmenPulang = $this->segmenPulang($data['detail_pulang_pergi']['segmen'] ?? []);
+
+            $pemesanan = $tiket->ticketingPemesanan;
 
             $pemesanan->update([
                 'nama_customer' => $data['nama_customer'] ?? $pemesanan->nama_customer,
@@ -83,32 +85,25 @@ class ReservasiPesawatService extends ReservasiService
                 TicketingPembayaran::create($dataPembayaran);
             }
 
-            $tiket = $pemesanan->ticketingTiketPesawat;
-            $dataTiket = [
-                'tckt_maskapai_id' => $data['maskapai_id'] ?? $tiket?->tckt_maskapai_id,
-                'tckt_vendor_id' => $data['vendor_id'] ?? $tiket?->tckt_vendor_id,
-                'tckt_bandara_berangkat_id' => $data['bandara_berangkat_id'] ?? $tiket?->tckt_bandara_berangkat_id,
-                'tckt_bandara_tiba_id' => $data['bandara_tiba_id'] ?? $tiket?->tckt_bandara_tiba_id,
-                'nomor_ticket' => $data['nomor_ticket'] ?? $tiket?->nomor_ticket,
-                'nomor_penerbangan' => $data['nomor_penerbangan'] ?? $tiket?->nomor_penerbangan,
-                'kode_booking_pesawat' => $data['kode_booking_pesawat'] ?? $tiket?->kode_booking_pesawat,
-                'kelas' => $data['kelas'] ?? $tiket?->kelas,
+            $tiket->update([
+                'tckt_maskapai_id' => $data['maskapai_id'] ?? $tiket->tckt_maskapai_id,
+                'tckt_vendor_id' => $data['vendor_id'] ?? $tiket->tckt_vendor_id,
+                'tckt_bandara_berangkat_id' => $data['bandara_berangkat_id'] ?? $tiket->tckt_bandara_berangkat_id,
+                'tckt_bandara_tiba_id' => $data['bandara_tiba_id'] ?? $tiket->tckt_bandara_tiba_id,
+                'nomor_ticket' => $data['nomor_ticket'] ?? $tiket->nomor_ticket,
+                'nomor_penerbangan' => $data['nomor_penerbangan'] ?? $tiket->nomor_penerbangan,
+                'kode_booking_pesawat' => $data['kode_booking_pesawat'] ?? $tiket->kode_booking_pesawat,
+                'kelas' => $data['kelas'] ?? $tiket->kelas,
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($data['jadwal_berangkat_pesawat'] ?? null)
-                    ?? $tiket?->jadwal_berangkat_pesawat,
+                    ?? $tiket->jadwal_berangkat_pesawat,
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($data['jadwal_tiba_pesawat'] ?? null)
-                    ?? $tiket?->jadwal_tiba_pesawat,
-                'zona_waktu' => $data['zona_waktu'] ?? $tiket?->zona_waktu,
-                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? $tiket?->zona_waktu_kedatangan,
+                    ?? $tiket->jadwal_tiba_pesawat,
+                'zona_waktu' => $data['zona_waktu'] ?? $tiket->zona_waktu,
+                'zona_waktu_kedatangan' => $data['zona_waktu_kedatangan'] ?? $tiket->zona_waktu_kedatangan,
                 'detail_pulang_pergi' => $this->detailPulangPergi($data, $segmenPulang),
-            ];
-            if ($tiket) {
-                $tiket->update($dataTiket);
-            } else {
-                $dataTiket['tckt_pemesanan_id'] = $pemesanan->id;
-                TicketingTiketPesawat::create($dataTiket);
-            }
+            ]);
 
-            return $pemesanan;
+            return $tiket;
         });
     }
 

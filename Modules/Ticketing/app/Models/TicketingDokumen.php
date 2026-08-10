@@ -4,11 +4,13 @@ namespace Modules\Ticketing\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Ticketing\Models\Concerns\LogsReservasiActivity;
 // use Modules\Ticketing\Database\Factories\TicketingDokumenFactory;
 
 class TicketingDokumen extends Model
 {
     use HasFactory;
+    use LogsReservasiActivity;
 
     protected $table = 'ticketing_dokumen';
 

@@ -29,3 +29,16 @@
 .fi-subnav-collapsed .fi-page-sub-navigation-sidebar [data-subnav-tooltip]::after {
     z-index: 60;
 }
+
+/*
+  Stripe baris tabel lebih kentara. Filament default cuma bg-gray-50 (nyaris
+  tak terlihat). Kita timpa dengan tint primary (indigo) yang lebih jelas,
+  plus sedikit lebih gelap saat hover biar tetap kebaca.
+*/
+.fi-ta-row.fi-striped {
+    background-color: rgb(241 245 255);
+}
+
+.fi-ta-row.fi-striped:hover {
+    background-color: rgb(224 231 255);
+}

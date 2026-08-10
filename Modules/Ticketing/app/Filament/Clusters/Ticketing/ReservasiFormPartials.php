@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\RawJs;
 use Modules\Ticketing\Models\TicketingKategoriPemesanan;
+use Modules\Ticketing\Models\TicketingPelanggan;
 use Modules\Ticketing\Models\TicketingUnitKerja;
 
 class ReservasiFormPartials
@@ -82,10 +83,13 @@ class ReservasiFormPartials
                     ->default(now())
                     ->required(),
 
-                TextInput::make('nama_customer')
+                Select::make('nama_customer')
                     ->label('Nama Pemesan')
-                    ->required()
-                    ->maxLength(255),
+                    ->options(fn () => TicketingPelanggan::query()
+                        ->pluck('nama_pelanggan', 'nama_pelanggan'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
 
                 Select::make('unit_kerja_pemesan')
                     ->label('Unit Kerja Pemesan')
@@ -116,10 +120,13 @@ class ReservasiFormPartials
     {
         return [
             Grid::make(2)->schema([
-                TextInput::make('nama_pembayar')
+                Select::make('nama_pembayar')
                     ->label('Nama Pembayar')
-                    ->required()
-                    ->maxLength(255),
+                    ->options(fn () => TicketingPelanggan::query()
+                        ->pluck('nama_pelanggan', 'nama_pelanggan'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
 
                 Select::make('unit_kerja_pembayar')
                     ->label('Unit Kerja Pembayar')

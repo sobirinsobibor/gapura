@@ -16,7 +16,6 @@ class TicketingMaskapai extends Model
      */
     protected $fillable = [
         'nama_maskapai',
-        'kode_maskapai',
         'is_active',
     ];
 

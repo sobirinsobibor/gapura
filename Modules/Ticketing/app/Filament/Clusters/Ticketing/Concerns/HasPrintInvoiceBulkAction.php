@@ -16,10 +16,13 @@ trait HasPrintInvoiceBulkAction
             ->action(function (BulkAction $action, EloquentCollection $records) use ($routeName): void {
                 $idPenumpang = $records->pluck('id')->join(',');
 
+                $owner = $this->getOwnerRecord();
+                $idPemesanan = $owner?->ticketingPemesanan?->getKey() ?? $owner?->getKey();
+
                 $this->js(sprintf(
                     "window.open('%s', '_blank')",
                     route($routeName, [
-                        'id_pemesanan' => $this->getOwnerRecord()->getKey(),
+                        'id_pemesanan' => $idPemesanan,
                         'id_penumpang' => $idPenumpang,
                     ])
                 ));

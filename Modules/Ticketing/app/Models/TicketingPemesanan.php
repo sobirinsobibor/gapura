@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Ticketing\Models\Concerns\LogsReservasiActivity;
 // use Modules\Ticketing\Database\Factories\TicketingPemesananFactory;
 
 class TicketingPemesanan extends Model
 {
     use HasFactory;
+    use LogsReservasiActivity;
 
     protected $table = 'ticketing_pemesanan';
 

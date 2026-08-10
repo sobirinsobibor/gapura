@@ -6,7 +6,7 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\HasClusterSubNavigation;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
-use Modules\Ticketing\Models\TicketingPemesanan;
+use Modules\Ticketing\Models\TicketingTiketPesawat;
 use Modules\Ticketing\Services\ReservasiPesawatService;
 
 class EditReservasiPesawat extends EditRecord
@@ -17,26 +17,27 @@ class EditReservasiPesawat extends EditRecord
 
     public function handleRecordUpdate(Model $record, array $data): Model
     {
-        /** @var TicketingPemesanan $record */
+        /** @var TicketingTiketPesawat $record */
         return app(ReservasiPesawatService::class)->update($record, $data);
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        /** @var TicketingPemesanan $record */
+        /** @var TicketingTiketPesawat $record */
         $record = $this->record;
-        $tiket = $record->ticketingTiketPesawat;
-        $pembayaran = $record->ticketingPembayaran;
+        $pemesanan = $record->ticketingPemesanan;
+        $tiket = $record;
+        $pembayaran = $pemesanan?->ticketingPembayaran;
 
-        $data['nama_customer'] = $record->nama_customer;
-        $data['unit_kerja_pemesan'] = $record->tckt_unit_kerja_id;
-        $data['status_pemesanan'] = $record->status_pemesanan;
-        $data['kategori_pemesanan_id'] = $record->tckt_kategori_pemesanan_id;
-        $data['tanggal_pemesanan'] = $record->tanggal_pemesanan;
-        $data['harga_beli'] = $record->harga_beli;
-        $data['harga_publish'] = $record->harga_publish;
-        $data['harga_jual'] = $record->harga_jual;
-        $data['pulang_pergi'] = $record->pulang_pergi;
+        $data['nama_customer'] = $pemesanan?->nama_customer;
+        $data['unit_kerja_pemesan'] = $pemesanan?->tckt_unit_kerja_id;
+        $data['status_pemesanan'] = $pemesanan?->status_pemesanan;
+        $data['kategori_pemesanan_id'] = $pemesanan?->tckt_kategori_pemesanan_id;
+        $data['tanggal_pemesanan'] = $pemesanan?->tanggal_pemesanan;
+        $data['harga_beli'] = $pemesanan?->harga_beli;
+        $data['harga_publish'] = $pemesanan?->harga_publish;
+        $data['harga_jual'] = $pemesanan?->harga_jual;
+        $data['pulang_pergi'] = $pemesanan?->pulang_pergi;
 
         $data['nama_pembayar'] = $pembayaran?->nama_pembayar;
         $data['unit_kerja_pembayar'] = $pembayaran?->tckt_unit_kerja_id;

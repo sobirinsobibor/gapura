@@ -6,57 +6,108 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ReservasiToggleableColumns;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilter;
-use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalKeberangkatanFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
+use Illuminate\Support\HtmlString;
 
 class ReservasiPesawatsTable
 {
+    use ReservasiToggleableColumns;
+
     public static function configure(Table $table): Table
     {
         return $table
             ->striped()
             ->recordAction(null)
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('ticketing_tiket_pesawat.created_at', 'desc')
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
+            ->reorderableColumns()
             ->columns([
                 TextColumn::make('#')
                     ->rowIndex(),
 
                 TextColumn::make('ticketingPemesanan.invoice')
                     ->label('Invoice')
+                    ->formatStateUsing(function ($state, $record) {
+                        $invoice = $record->ticketingPemesanan?->invoice;
+                        $tanggal = $record->ticketingPemesanan?->tanggal_pemesanan
+                            ? \Carbon\Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
+                            : null;
+
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$invoice}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$tanggal}</div>
+                            </div>
+                        HTML);
+                    })
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('kode_booking_pesawat')
+                    ->label('Kode Booking')
+                    ->searchable(),
+
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
+                    ->wrap()
                     ->searchable(),
+
+                TextColumn::make('nama_pembayar')
+                    ->label('Pembayar')
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
+                    ->wrap()
                     ->searchable(),
 
                 TextColumn::make('ticketingMaskapai.nama_maskapai')
                     ->label('Maskapai')
                     ->searchable(),
 
+
                 TextColumn::make('jadwal_berangkat_pesawat')
-                    ->label('Berangkat')
-                    ->dateTime('d-m-Y H:i')
+                    ->label('Keberangkatan')
+                    ->formatStateUsing(function ($state, $record) {
+                        $nama = $record->ticketingBerangkatBandara?->nama_bandara;
+                        $kode = $record->ticketingBerangkatBandara?->kode_bandara;
+                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $zona = $record->zona_waktu;
+
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode} • {$tanggal}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$jam} {$zona}</div>
+                            </div>
+                        HTML);
+                    })
                     ->sortable(),
 
-                TextColumn::make('ticketingBerangkatBandara.kode_bandara')
-                    ->label('Keberangkatan')
-                    ->searchable(),
-
-                TextColumn::make('ticketingTibaBandara.kode_bandara')
+                TextColumn::make('jadwal_tiba_pesawat')
                     ->label('Kedatangan')
-                    ->searchable(),
+                    ->formatStateUsing(function ($state, $record) {
+                        $nama = $record->ticketingTibaBandara?->nama_bandara;
+                        $kode = $record->ticketingTibaBandara?->kode_bandara;
+                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $zona = $record->zona_waktu_kedatangan;
 
-                TextColumn::make('ticketingPemesanan.harga_jual')
-                    ->label('Harga Jual')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode} • {$tanggal}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$jam} {$zona}</div>
+                            </div>
+                        HTML);
+                    })
                     ->sortable(),
 
                 TextColumn::make('ticketingPemesanan.status_pemesanan')
@@ -68,16 +119,73 @@ class ReservasiPesawatsTable
                         default => 'info',
                     })
                     ->sortable(),
+
+                TextColumn::make('nomor_ticket')
+                    ->label('No. Tiket')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('nomor_penerbangan')
+                    ->label('No. Penerbangan')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('kelas')
+                    ->label('Kelas')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('detail_pulang_pergi')
+                    ->label('Detail Pulang Pergi')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('zona_waktu')
+                    ->label('Zona Waktu')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('zona_waktu_kedatangan')
+                    ->label('Zona Waktu Kedatangan')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('ticketingBerangkatBandara.kode_bandara')
+                    ->label('Kode Bandara Berangkat')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('ticketingTibaBandara.kode_bandara')
+                    ->label('Kode Bandara Tiba')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('ticketingPemesanan.harga_jual')
+                    ->label('Harga Jual')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                ...self::reservasiCommonToggleableColumns(),
             ])
             ->filters([
-                TanggalPemesananFilter::make(),
+                TanggalKeberangkatanFilter::make()
+                    ->filterColumn('ticketing_tiket_pesawat.jadwal_berangkat_pesawat'),
                 KategoriPemesananFilter::make(),
             ])
             ->recordActions([
                 EditAction::make()
                     ->button()
                     ->hiddenLabel()
-                    ->url(fn ($record) => ReservasiPesawatResource::getUrl('edit', ['record' => $record->ticketingPemesanan])),
+                    ->url(fn ($record) => ReservasiPesawatResource::getUrl('edit', ['record' => $record])),
             ])
             ->toolbarActions([
                 //

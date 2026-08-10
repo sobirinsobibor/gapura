@@ -6,12 +6,16 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ReservasiToggleableColumns;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiDokumens\ReservasiDokumenResource;
 
 class ReservasiDokumensTable
 {
+    use ReservasiToggleableColumns;
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -20,11 +24,25 @@ class ReservasiDokumensTable
             ->defaultSort('created_at', 'desc')
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
+            ->reorderableColumns()
             ->columns([
                 TextColumn::make('#')->rowIndex(),
 
                 TextColumn::make('ticketingPemesanan.invoice')
                     ->label('Invoice')
+                    ->formatStateUsing(function ($state, $record) {
+                        $invoice = $record->ticketingPemesanan?->invoice;
+                        $tanggal = $record->ticketingPemesanan?->tanggal_pemesanan
+                            ? \Carbon\Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
+                            : null;
+
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$invoice}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$tanggal}</div>
+                            </div>
+                        HTML);
+                    })
                     ->searchable()
                     ->sortable(),
 
@@ -36,6 +54,12 @@ class ReservasiDokumensTable
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->searchable(),
+
+                TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
+                    ->label('Pembayar')
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
@@ -59,6 +83,14 @@ class ReservasiDokumensTable
                         default => 'info',
                     })
                     ->sortable(),
+
+                TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                ...self::reservasiCommonToggleableColumns(),
             ])
             ->filters([
                 TanggalPemesananFilter::make(),

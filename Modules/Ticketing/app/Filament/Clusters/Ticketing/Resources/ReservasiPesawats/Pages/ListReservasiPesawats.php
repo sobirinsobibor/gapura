@@ -4,6 +4,7 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesaw
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ListsReservasiByEntity;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
 use Modules\Ticketing\Models\TicketingTiketPesawat;
@@ -13,6 +14,11 @@ class ListReservasiPesawats extends ListRecords
     use ListsReservasiByEntity;
 
     protected static string $resource = ReservasiPesawatResource::class;
+
+    protected function getTableQuery(): Builder
+    {
+        return ReservasiPesawatResource::getReservasiPesawatListQuery();
+    }
 
     protected function getReservasiAnchorModel(): string
     {

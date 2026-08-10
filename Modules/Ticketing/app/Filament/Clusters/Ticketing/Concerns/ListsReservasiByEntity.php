@@ -21,6 +21,7 @@ trait ListsReservasiByEntity
             'ticketingPemesanan.ticketingKategoriPemesanan',
             'ticketingPemesanan.ticketingUnitKerja',
             'ticketingPemesanan.ticketingPembayaran',
+            'ticketingPemesanan.creator',
             'ticketingVendor',
         ];
     }

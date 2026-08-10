@@ -5,13 +5,22 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Filters;
 use Illuminate\Database\Eloquent\Builder;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
-class TanggalPemesananFilter extends DateRangeFilter
+class TanggalKeberangkatanFilter extends DateRangeFilter
 {
+    protected string $filterColumn;
+
+    public function filterColumn(string $column): static
+    {
+        $this->filterColumn = $column;
+
+        return $this;
+    }
+
     protected function setUp(): void
     {
-        $this->name('tanggal_pemesanan');
+        $this->name('tanggal_keberangkatan');
 
-        $this->label('Periode Tanggal Pemesanan');
+        $this->label('Periode Tanggal Keberangkatan');
 
         $this->format('d/m/Y');
 
@@ -33,16 +42,14 @@ class TanggalPemesananFilter extends DateRangeFilter
                 return $query;
             }
 
-            return $query->whereHas('ticketingPemesanan', function (Builder $q) use ($startDate, $endDate): Builder {
-                return $q
-                    ->when($startDate, fn (Builder $qq) => $qq->whereDate('tanggal_pemesanan', '>=', $startDate))
-                    ->when($endDate, fn (Builder $qq) => $qq->whereDate('tanggal_pemesanan', '<=', $endDate));
-            });
+            return $query
+                ->when($startDate, fn (Builder $q) => $q->whereDate($this->filterColumn, '>=', $startDate))
+                ->when($endDate, fn (Builder $q) => $q->whereDate($this->filterColumn, '<=', $endDate));
         });
     }
 
     public static function getDefaultName(): ?string
     {
-        return 'tanggal_pemesanan';
+        return 'tanggal_keberangkatan';
     }
 }
