@@ -36,7 +36,7 @@ class DashboardPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         FilamentAsset::register([
-            Css::make('filament-sticky')
+            Css::make('filament-sticky', resource_path('css/filament-sticky.css'))
                 ->relativePublicPath('css/filament-sticky.css'),
         ]);
 

@@ -1,0 +1,44 @@
+.fi-page-sub-navigation-sidebar-ctn {
+    position: sticky;
+    top: calc(var(--spacing) * 16);
+    align-self: flex-start;
+    max-height: calc(100vh - var(--spacing) * 16);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/*
+  Saat sub-nav di-collapse, hanya ikon yang tampil. Tooltip plugin digambar
+  sebagai elemen ABSOLUTE (::after) memakai `left: 100%`, jadi keluar dari
+  sidebar. Namun container di atas adalah SCROLL CONTAINER (overflow-y: auto),
+  yang membuat browser menetapkan overflow-x = auto -> tooltip terpotong /
+  tertutup konten kanan (mis. table). Untuk collapsed state kita matikan scroll
+  internal (masuk akal: hanya ikon), sehingga tooltip bisa mengambang di atas
+  konten. Tambahkan z-index agar pasti menimpa table.
+*/
+.fi-subnav-collapsed .fi-page-sub-navigation-sidebar-ctn {
+    max-height: none;
+    overflow: visible;
+    z-index: 40;
+}
+
+.fi-subnav-collapsed .fi-page-sub-navigation-sidebar {
+    z-index: 50;
+}
+
+.fi-subnav-collapsed .fi-page-sub-navigation-sidebar [data-subnav-tooltip]::after {
+    z-index: 60;
+}
+
+/*
+  Stripe baris tabel lebih kentara. Filament default cuma bg-gray-50 (nyaris
+  tak terlihat). Kita timpa dengan tint primary (indigo) yang lebih jelas,
+  plus sedikit lebih gelap saat hover biar tetap kebaca.
+*/
+.fi-ta-row.fi-striped {
+    background-color: rgb(241 245 255);
+}
+
+.fi-ta-row.fi-striped:hover {
+    background-color: rgb(224 231 255);
+}
