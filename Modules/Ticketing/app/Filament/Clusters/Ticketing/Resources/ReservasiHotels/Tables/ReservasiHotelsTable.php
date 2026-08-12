@@ -48,6 +48,7 @@ class ReservasiHotelsTable
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
+                    ->wrap()
                     ->searchable(),
 
                 TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
@@ -58,6 +59,7 @@ class ReservasiHotelsTable
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
+                    ->wrap()
                     ->searchable(),
 
                 TextColumn::make('ticketingHotel.nama_hotel')

@@ -1,0 +1,11 @@
+{
+    "name": "PengajuanDana",
+    "alias": "pengajuandana",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PengajuanDana\\Providers\\PengajuanDanaServiceProvider"
+    ],
+    "files": []
+}
