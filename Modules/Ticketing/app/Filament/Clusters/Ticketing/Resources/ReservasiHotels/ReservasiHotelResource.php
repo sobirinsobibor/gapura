@@ -90,9 +90,9 @@ class ReservasiHotelResource extends Resource
                 'ticketingUnitKerja',
                 'ticketingPembayaran',
                 'creator',
-                'ticketingKamarHotels',
-                'ticketingKamarHotels.ticketingVendor',
-                'ticketingKamarHotels.ticketingHotel',
+                'ticketingKamarHotel',
+                'ticketingKamarHotel.ticketingVendor',
+                'ticketingKamarHotel.ticketingHotel',
             ]);
 
         $user = auth()->user();

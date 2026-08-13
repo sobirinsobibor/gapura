@@ -10,6 +10,7 @@ use Illuminate\Support\HtmlString;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ReservasiToggleableColumns;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalKeberangkatanFilter;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeretas\ReservasiKeretaResource;
 
 class ReservasiKeretasTable
@@ -154,6 +155,9 @@ class ReservasiKeretasTable
             ->filters([
                 TanggalKeberangkatanFilter::make()
                     ->filterColumn('ticketing_tiket_kereta.jadwal_berangkat_kereta'),
+
+                TanggalPemesananFilter::make(),
+
                 KategoriPemesananFilter::make(),
             ])
             ->recordActions([

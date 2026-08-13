@@ -46,13 +46,9 @@ class ReservasiDokumensTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('ticketingPemesanan.tanggal_pemesanan')
-                    ->label('Tanggal')
-                    ->date('d-m-Y')
-                    ->sortable(),
-
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
+                    ->wrap()
                     ->searchable(),
 
                 TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
@@ -63,6 +59,7 @@ class ReservasiDokumensTable
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
+                    ->wrap()
                     ->searchable(),
 
                 TextColumn::make('jenis_dokumen')

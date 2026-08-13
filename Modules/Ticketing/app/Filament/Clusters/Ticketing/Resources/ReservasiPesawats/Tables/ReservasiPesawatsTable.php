@@ -11,6 +11,7 @@ use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilte
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalKeberangkatanFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
 use Illuminate\Support\HtmlString;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
 
 class ReservasiPesawatsTable
 {
@@ -179,6 +180,9 @@ class ReservasiPesawatsTable
             ->filters([
                 TanggalKeberangkatanFilter::make()
                     ->filterColumn('ticketing_tiket_pesawat.jadwal_berangkat_pesawat'),
+                    
+                TanggalPemesananFilter::make(),
+                   
                 KategoriPemesananFilter::make(),
             ])
             ->recordActions([
