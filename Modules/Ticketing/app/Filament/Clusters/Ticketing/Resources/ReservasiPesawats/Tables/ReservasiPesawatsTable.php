@@ -57,6 +57,13 @@ class ReservasiPesawatsTable
                     ->wrap()
                     ->searchable(),
 
+                TextColumn::make('ticketingPenumpang.nama_penumpang')
+                    ->label('Penumpang')
+                    ->badge()
+                    ->listWithLineBreaks()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('nama_pembayar')
                     ->label('Pembayar')
                     ->wrap()

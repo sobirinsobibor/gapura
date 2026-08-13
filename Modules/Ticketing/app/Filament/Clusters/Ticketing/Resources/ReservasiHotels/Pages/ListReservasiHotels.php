@@ -39,6 +39,7 @@ class ListReservasiHotels extends ListRecords
     protected function getReservasiExportColumns(): array
     {
         return array_merge($this->reservasiBaseExportColumns(), [
+            'penumpang' => 'Penumpang',
             'ticketingHotel.nama_hotel' => 'Hotel',
             'jumlah_kamar' => 'Jumlah Kamar',
             'lama_menginap' => 'Lama Menginap',

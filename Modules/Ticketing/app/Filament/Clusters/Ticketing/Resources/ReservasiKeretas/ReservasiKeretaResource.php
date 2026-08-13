@@ -71,6 +71,7 @@ class ReservasiKeretaResource extends Resource
                 'ticketingKereta',
                 'ticketingBerangkatStasiun',
                 'ticketingTibaStasiun',
+                'ticketingPenumpang',
             ]);
 
         $user = auth()->user();

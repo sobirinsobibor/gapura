@@ -1,0 +1,127 @@
+<?php
+
+namespace Modules\PengajuanDana\Services;
+
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Modules\PengajuanDana\Enums\ProposalDraftStatus;
+use Modules\PengajuanDana\Enums\ProposalSubmissionStatus;
+use Modules\PengajuanDana\Models\Event;
+use Modules\PengajuanDana\Models\ProposalDraft;
+use Modules\PengajuanDana\Models\ProposalSubmission;
+use RuntimeException;
+
+class ProposalSubmissionService
+{
+    public const MAX_RESTATEMENT = 3;
+
+    /**
+     * Generate nomor submission 17 karakter:
+     * 12 digit kode event + 3 digit index draft + 2 digit index submission.
+     */
+    public function generateNoSubmission(ProposalDraft $draft): string
+    {
+        $eventCode = str_pad((string) $draft->event->getKey(), 12, '0', STR_PAD_LEFT);
+        $draftIndex = substr($draft->no_pengajuan, 12, 3);
+
+        $sequence = ProposalSubmission::query()
+            ->where('judan_proposal_draft_id', $draft->getKey())
+            ->count() + 1;
+
+        return $eventCode
+            . $draftIndex
+            . str_pad((string) $sequence, 2, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Nomor surat (event identity) sesuai format lama:
+     * tahun/institusi/nama_singkat/bulan/tanggal/index_submission.
+     */
+    public function generateEventIdentity(Event $event, ProposalDraft $draft, int $sequence): string
+    {
+        $institution = $event->institution;
+        $institutionCode = $institution->kode_institusi
+            ?: str_pad((string) $institution->getKey(), 3, '0', STR_PAD_LEFT);
+
+        return collect([
+            $event->tanggal_mulai?->format('Y'),
+            $institutionCode,
+            $event->nama_singkat,
+            $event->tanggal_mulai?->format('m'),
+            $event->tanggal_mulai?->format('d'),
+            str_pad((string) $sequence, 2, '0', STR_PAD_LEFT),
+        ])->join('/');
+    }
+
+    public function assertCanSubmit(ProposalDraft $draft): void
+    {
+        $activeCount = $draft->submissions()
+            ->whereIn('status', [
+                ProposalSubmissionStatus::Menunggu->value,
+                ProposalSubmissionStatus::ProsesTransfer->value,
+            ])
+            ->count();
+
+        if ($activeCount > 0) {
+            throw new RuntimeException('Masih ada proses pengajuan berjalan. Silakan tunggu proses yang berjalan selesai.');
+        }
+
+        if ($draft->submissions()->count() >= self::MAX_RESTATEMENT) {
+            throw new RuntimeException('Pengajuan ini tidak dapat diajukan ulang. Silakan buat pengajuan baru.');
+        }
+    }
+
+    public function approve(ProposalSubmission $submission, User $manager): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::Menunggu) {
+            throw new RuntimeException('Submission tidak dalam status menunggu.');
+        }
+
+        DB::transaction(function () use ($submission, $manager): void {
+            $submission->update([
+                'status' => ProposalSubmissionStatus::ProsesTransfer,
+                'inspiring_manager_id' => $manager->getKey(),
+                'checked_date' => now()->toDateString(),
+            ]);
+
+            $submission->proposalDraft->update([
+                'status' => ProposalDraftStatus::Diajukan,
+            ]);
+        });
+    }
+
+    public function reject(ProposalSubmission $submission, User $manager, ?string $note): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::Menunggu) {
+            throw new RuntimeException('Submission tidak dalam status menunggu.');
+        }
+
+        DB::transaction(function () use ($submission, $manager, $note): void {
+            $submission->update([
+                'status' => ProposalSubmissionStatus::Ditolak,
+                'inspiring_manager_id' => $manager->getKey(),
+                'catatan_manager' => $note,
+                'checked_date' => now()->toDateString(),
+            ]);
+
+            $submission->proposalDraft->update([
+                'status' => ProposalDraftStatus::Ditolak,
+            ]);
+        });
+    }
+
+    public function returnToMember(ProposalSubmission $submission, User $manager, ?string $note): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::ProsesTransfer) {
+            throw new RuntimeException('Submission tidak dalam proses transfer.');
+        }
+
+        DB::transaction(function () use ($submission, $manager, $note): void {
+            $submission->update([
+                'status' => ProposalSubmissionStatus::Dikembalikan,
+                'inspiring_manager_id' => $manager->getKey(),
+                'catatan_manager' => $note,
+            ]);
+        });
+    }
+}

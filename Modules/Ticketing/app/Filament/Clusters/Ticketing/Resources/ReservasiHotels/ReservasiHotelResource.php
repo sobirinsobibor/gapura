@@ -65,8 +65,8 @@ class ReservasiHotelResource extends Resource
                 'ticketingPemesanan.creator',
                 'ticketingVendor',
                 'ticketingHotel',
+                'ticketingPenumpang',
             ]);
-
         $user = auth()->user();
 
         if (! $user) {

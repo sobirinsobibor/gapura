@@ -4,6 +4,7 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Concerns;
 
 use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -23,6 +24,7 @@ trait ListsReservasiByEntity
             'ticketingPemesanan.ticketingPembayaran',
             'ticketingPemesanan.creator',
             'ticketingVendor',
+            'ticketingPenumpang',
         ];
     }
 
@@ -72,27 +74,39 @@ trait ListsReservasiByEntity
             $writer->addRow(Row::fromValues(array_values($columns)));
 
             foreach ($query->get() as $record) {
-                $row = [];
+                $penumpangs = $record->ticketingPenumpang?->pluck('nama_penumpang')->all() ?? [];
 
-                foreach (array_keys($columns) as $column) {
-                    $value = data_get($record, $column);
-
-                    if (str_ends_with($column, 'include_breakfast')) {
-                        $value = $value ? 'Ya' : 'Tidak';
-                    }
-
-                    if (str_ends_with($column, 'pulang_pergi')) {
-                        $value = $value ? 'Ya' : 'Tidak';
-                    }
-
-                    if (is_null($value)) {
-                        $value = '';
-                    }
-
-                    $row[] = $value;
+                if (empty($penumpangs)) {
+                    $penumpangs = [null];
                 }
 
-                $writer->addRow(Row::fromValues($row));
+                foreach ($penumpangs as $penumpang) {
+                    $row = [];
+
+                    foreach (array_keys($columns) as $column) {
+                        if ($column === 'penumpang') {
+                            $value = $penumpang;
+                        } else {
+                            $value = data_get($record, $column);
+                        }
+
+                        if (str_ends_with($column, 'include_breakfast')) {
+                            $value = $value ? 'Ya' : 'Tidak';
+                        }
+
+                        if (str_ends_with($column, 'pulang_pergi')) {
+                            $value = $value ? 'Ya' : 'Tidak';
+                        }
+
+                        if (is_null($value)) {
+                            $value = '';
+                        }
+
+                        $row[] = $value;
+                    }
+
+                    $writer->addRow(Row::fromValues($row));
+                }
             }
 
             $writer->close();

@@ -22,6 +22,7 @@ class ListReservasiDokumens extends ListRecords
     protected function getReservasiExportColumns(): array
     {
         return array_merge($this->reservasiBaseExportColumns(), [
+            'penumpang' => 'Pemilik Dokumen',
             'jenis_dokumen' => 'Jenis Dokumen',
             'keterangan' => 'Keterangan',
         ]);

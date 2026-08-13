@@ -4,6 +4,7 @@ namespace Modules\PengajuanDana\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bank extends Model
 {
@@ -20,4 +21,9 @@ class Bank extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(BankAccount::class, 'judan_bank_id');
+    }
 }

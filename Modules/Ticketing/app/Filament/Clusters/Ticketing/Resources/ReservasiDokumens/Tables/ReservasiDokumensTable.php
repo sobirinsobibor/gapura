@@ -51,6 +51,13 @@ class ReservasiDokumensTable
                     ->wrap()
                     ->searchable(),
 
+                TextColumn::make('ticketingPenumpang.nama_penumpang')
+                    ->label('Pemilik Dokumen')
+                    ->badge()
+                    ->listWithLineBreaks()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
                     ->label('Pembayar')
                     ->wrap()

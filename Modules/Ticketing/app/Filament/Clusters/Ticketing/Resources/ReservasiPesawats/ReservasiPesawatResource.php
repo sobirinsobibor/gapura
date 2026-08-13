@@ -61,6 +61,7 @@ class ReservasiPesawatResource extends Resource
                 'ticketingMaskapai',
                 'ticketingBerangkatBandara',
                 'ticketingTibaBandara',
+                'ticketingPenumpang',
             ]);
 
         $user = auth()->user();
@@ -108,6 +109,7 @@ class ReservasiPesawatResource extends Resource
                 'ticketingMaskapai',
                 'ticketingBerangkatBandara',
                 'ticketingTibaBandara',
+                'ticketingPenumpang',
             ]);
 
         $user = auth()->user();

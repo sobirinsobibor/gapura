@@ -41,6 +41,7 @@ class ListReservasiKeretas extends ListRecords
     protected function getReservasiExportColumns(): array
     {
         return array_merge($this->reservasiBaseExportColumns(), [
+            'penumpang' => 'Penumpang',
             'ticketingKereta.nama_kereta' => 'Kereta',
             'kode_booking_kereta' => 'Kode Booking Kereta',
             'ticketingBerangkatStasiun.kode_stasiun' => 'Kode Stasiun Berangkat',
