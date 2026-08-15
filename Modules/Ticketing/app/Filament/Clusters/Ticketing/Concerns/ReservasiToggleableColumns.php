@@ -6,19 +6,21 @@ use Filament\Tables\Columns\TextColumn;
 
 trait ReservasiToggleableColumns
 {
-    protected static function reservasiCommonToggleableColumns(array $exclude = []): array
+protected static function reservasiCommonToggleableColumns(array $exclude = [], bool $individualSearch = false): array
     {
+        $searchable = $individualSearch
+            ? fn (TextColumn $column): TextColumn => $column->searchable(isIndividual: true, isGlobal: false)
+            : fn (TextColumn $column): TextColumn => $column->searchable();
+
         $columns = [
-            TextColumn::make('ticketingPemesanan.ticketingKategoriPemesanan.nama_kategori')
+            $searchable(TextColumn::make('ticketingPemesanan.ticketingKategoriPemesanan.nama_kategori'))
                 ->label('Kategori')
-                ->searchable()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
 
-            TextColumn::make('ticketingPemesanan.pulang_pergi')
+            $searchable(TextColumn::make('ticketingPemesanan.pulang_pergi'))
                 ->label('Pulang Pergi')
                 ->formatStateUsing(fn ($state) => $state ? 'Ya' : 'Tidak')
-                ->searchable()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
 
@@ -34,21 +36,18 @@ trait ReservasiToggleableColumns
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
 
-            TextColumn::make('ticketingVendor.nama_vendor')
+            $searchable(TextColumn::make('ticketingVendor.nama_vendor'))
                 ->label('Vendor')
-                ->searchable()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
 
-            TextColumn::make('ticketingVendor.jenis_vendor')
+            $searchable(TextColumn::make('ticketingVendor.jenis_vendor'))
                 ->label('Jenis Vendor')
-                ->searchable()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
 
-            TextColumn::make('ticketingPemesanan.creator.name')
+            $searchable(TextColumn::make('ticketingPemesanan.creator.name'))
                 ->label('Dibuat Oleh')
-                ->searchable()
                 ->sortable()
                 ->toggleable(),
         ];

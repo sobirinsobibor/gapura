@@ -68,4 +68,16 @@ class TicketingTiketPesawat extends Model
             'tckt_penumpang_id'
         );
     }
+
+    public function ticketingPembayaranPenumpang()
+    {
+        return $this->hasManyThrough(
+            TicketingPembayaranPenumpang::class,
+            TicketingPembayaran::class,
+            'tckt_pemesanan_id',
+            'tckt_pembayaran_id',
+            'tckt_pemesanan_id',
+            'id'
+        );
+    }
 }

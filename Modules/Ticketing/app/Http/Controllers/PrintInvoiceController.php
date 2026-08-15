@@ -28,7 +28,7 @@ class PrintInvoiceController extends Controller
             return abort(404);
         }
 
-        $penumpangTerpilih = $this->resolusiPenumpang($tiket->ticketingPenumpang, explode(',', $request->id_penumpang));
+        $penumpangTerpilih = $this->resolusiPenumpang($tiket->ticketingPenumpang, explode(',', $request->id_penumpang), $pemesanan->ticketingPembayaran?->id);
 
         $hargaSatuan = $this->hargaSatuan($pemesanan->harga_jual, $tiket->ticketingPenumpang->count());
         $hargaTotal = $hargaSatuan * count($penumpangTerpilih);
@@ -153,9 +153,14 @@ class PrintInvoiceController extends Controller
         ], $hargaSatuan, $hargaTotal, $penumpangTerpilih);
     }
 
-    protected function resolusiPenumpang($penumpangs, array $idTerpilih): array
+    protected function resolusiPenumpang($penumpangs, array $idTerpilih, ?int $idPembayaran = null): array
     {
         $hasil = [];
+
+        $penumpangs = $penumpangs->loadMissing([
+            'ticketingPembayaranPenumpang.ticketingPembayar',
+            'ticketingPembayaranPenumpang.ticketingUnitKerja',
+        ]);
 
         foreach ($idTerpilih as $id) {
             foreach ($penumpangs as $penumpang) {
@@ -164,9 +169,19 @@ class PrintInvoiceController extends Controller
                         ? 'Ms ' . $penumpang->nama_penumpang
                         : 'Mr ' . $penumpang->nama_penumpang;
 
+                    $pembayaranPenumpang = $penumpang->ticketingPembayaranPenumpang
+                        ->filter(fn ($row) => $idPembayaran === null || $row->tckt_pembayaran_id == $idPembayaran)
+                        ->first();
+
+                    $namaPembayar = $pembayaranPenumpang?->ticketingPembayar?->nama_pembayar
+                        ?? $pembayaranPenumpang?->nama_pembayar;
+                    $unitKerjaPembayar = $pembayaranPenumpang?->ticketingUnitKerja?->nama_unit_kerja;
+
                     $hasil[] = [
                         'id' => $penumpang->id,
                         'nama' => $nama,
+                        'pembayar' => $namaPembayar ?? '',
+                        'unit_kerja_pembayar' => $unitKerjaPembayar ?? '',
                     ];
                 }
             }

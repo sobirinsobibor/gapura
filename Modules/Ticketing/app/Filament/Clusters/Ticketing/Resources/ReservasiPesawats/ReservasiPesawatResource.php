@@ -16,6 +16,7 @@ use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pa
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages\EditReservasiPesawat;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages\ListReservasiPesawats;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\RelationManagers\PenumpangPesawatRelationManager;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\RelationManagers\RiwayatPembayaranRelationManager;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Schemas\ReservasiPesawatForm;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Tables\ReservasiPesawatsTable;
 use Modules\Ticketing\Filament\Clusters\Ticketing\TicketingCluster;
@@ -62,6 +63,9 @@ class ReservasiPesawatResource extends Resource
                 'ticketingBerangkatBandara',
                 'ticketingTibaBandara',
                 'ticketingPenumpang',
+                'ticketingPenumpang.ticketingPembayaranPenumpang',
+                'ticketingPenumpang.ticketingPembayaranPenumpang.ticketingUnitKerja',
+                'ticketingPenumpang.ticketingPembayaranPenumpang.ticketingPembayar',
             ]);
 
         $user = auth()->user();
@@ -110,6 +114,9 @@ class ReservasiPesawatResource extends Resource
                 'ticketingBerangkatBandara',
                 'ticketingTibaBandara',
                 'ticketingPenumpang',
+                'ticketingPenumpang.ticketingPembayaranPenumpang',
+                'ticketingPenumpang.ticketingPembayaranPenumpang.ticketingUnitKerja',
+                'ticketingPenumpang.ticketingPembayaranPenumpang.ticketingPembayar',
             ]);
 
         $user = auth()->user();
@@ -150,6 +157,7 @@ class ReservasiPesawatResource extends Resource
     {
         return [
             PenumpangPesawatRelationManager::class,
+            RiwayatPembayaranRelationManager::class,
         ];
     }
 

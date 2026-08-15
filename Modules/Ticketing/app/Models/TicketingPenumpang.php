@@ -67,6 +67,6 @@ class TicketingPenumpang extends Model
 
     public function ticketingPembayaranPenumpang()
     {
-        return $this->hasMany(TicketingPembayaranPenumpang::class);
+        return $this->hasMany(TicketingPembayaranPenumpang::class, 'tckt_penumpang_id');
     }
 }

@@ -25,6 +25,8 @@ trait ListsReservasiByEntity
             'ticketingPemesanan.creator',
             'ticketingVendor',
             'ticketingPenumpang',
+            'ticketingPenumpang.ticketingPembayaranPenumpang',
+            'ticketingPenumpang.ticketingPembayaranPenumpang.ticketingPembayar',
         ];
     }
 
@@ -74,7 +76,7 @@ trait ListsReservasiByEntity
             $writer->addRow(Row::fromValues(array_values($columns)));
 
             foreach ($query->get() as $record) {
-                $penumpangs = $record->ticketingPenumpang?->pluck('nama_penumpang')->all() ?? [];
+                $penumpangs = $record->ticketingPenumpang?->all() ?? [];
 
                 if (empty($penumpangs)) {
                     $penumpangs = [null];
@@ -85,7 +87,13 @@ trait ListsReservasiByEntity
 
                     foreach (array_keys($columns) as $column) {
                         if ($column === 'penumpang') {
-                            $value = $penumpang;
+                            $value = $penumpang?->nama_penumpang;
+                        } elseif ($column === 'penumpang_pembayar') {
+                            $pembayaranId = $record->ticketingPemesanan?->ticketingPembayaran?->id;
+                            $pembayaran = $penumpang?->ticketingPembayaranPenumpang
+                                ->where('tckt_pembayaran_id', $pembayaranId)
+                                ->first();
+                            $value = $pembayaran?->ticketingPembayar?->nama_pembayar ?? ($pembayaran?->nama_pembayar ?? null);
                         } else {
                             $value = data_get($record, $column);
                         }

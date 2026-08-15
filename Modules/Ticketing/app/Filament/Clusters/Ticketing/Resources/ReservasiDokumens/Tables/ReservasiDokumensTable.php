@@ -44,12 +44,14 @@ class ReservasiDokumensTable
                         HTML);
                     })
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Pemilik Dokumen')
@@ -67,16 +69,19 @@ class ReservasiDokumensTable
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('jenis_dokumen')
                     ->label('Jenis Dokumen')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.harga_jual')
                     ->label('Harga Jual')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.status_pemesanan')
                     ->label('Status')
@@ -86,7 +91,8 @@ class ReservasiDokumensTable
                         'Canceled', 'Refund' => 'danger',
                         default => 'info',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')

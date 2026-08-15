@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 trait HasPrintInvoiceBulkAction
 {
-    protected function printInvoiceBulkAction(string $routeName): BulkAction
+    protected function printInvoiceBulkAction(string $routeName, ?string $idColumn = null): BulkAction
     {
         return BulkAction::make('print_invoice')
             ->label('Print Invoice')
             ->icon('heroicon-o-printer')
             ->color('info')
-            ->action(function (BulkAction $action, EloquentCollection $records) use ($routeName): void {
-                $idPenumpang = $records->pluck('id')->join(',');
+            ->action(function (BulkAction $action, EloquentCollection $records) use ($routeName, $idColumn): void {
+                $idPenumpang = $records->pluck($idColumn ?? 'id')->join(',');
 
                 $owner = $this->getOwnerRecord();
                 $idPemesanan = $owner?->ticketingPemesanan?->getKey() ?? $owner?->getKey();

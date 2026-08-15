@@ -45,12 +45,14 @@ class ReservasiHotelsTable
                         HTML);
                     })
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Penumpang')
@@ -68,11 +70,13 @@ class ReservasiHotelsTable
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingHotel.nama_hotel')
                     ->label('Hotel')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('jadwal_checkin')
                     ->label('Check-in')
@@ -91,7 +95,8 @@ class ReservasiHotelsTable
                             </div>
                         HTML);
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('jadwal_checkout')
                     ->label('Check-out')
@@ -126,7 +131,8 @@ class ReservasiHotelsTable
                         'Canceled', 'Refund' => 'danger',
                         default => 'info',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('jumlah_kamar')
                     ->label('Jumlah Kamar')

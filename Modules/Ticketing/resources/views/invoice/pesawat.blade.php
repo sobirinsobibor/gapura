@@ -203,20 +203,14 @@
                 Pemesan
             </td>
             <td>{{ ': ' . $nama_pemesan }}</td>
-            <td>Pembayar<b>:</b> </td>
-            <td>
-                {{ $nama_pembayar }}
-            </td>
+            <td colspan="2"></td>
         </tr>
         <tr id="row_5">
             <td>
                 Unit Kerja
             </td>
             <td>{{ ': ' . $unit_kerja_pemesan }}</td>
-            <td>Unit Kerja<b>:</b> </td>
-            <td>
-                {{ $unit_kerja_pembayar }}
-            </td>
+            <td colspan="2"></td>
         </tr>
     </table>
 
@@ -232,10 +226,7 @@
                         ">
                     NO
                 </th>
-                <th class="" style="text-align: center; font-weight: 700; width: 10%">
-                    DATE
-                </th>
-                <th class="" colspan="6" style="text-align: center; font-weight: 700">
+                <th class="" colspan="7" style="text-align: center; font-weight: 700">
                     DESCRIPTION
                 </th>
                 <th class="" style="text-align: center; font-weight: 700; width: 10%">
@@ -246,11 +237,11 @@
         <tbody style="font-weight: normal; padding: 0px;">
             <tr style="font-weight: 700;">
                 <td class=""></td>
-                <td class="" style="text-align: center">
-                    Reservation
-                </td>
                 <td class="" style="text-align: center; width: 15%;">
                     Pasengger
+                </td>
+                <td class="" style="text-align: center; width: 20%;">
+                    Pembayar
                 </td>
                 <td class="" style="text-align: center; width: 10%;">
                     No. Flight
@@ -266,46 +257,54 @@
             </tr>
             @foreach ($penumpangs as $index => $penumpang)
                 <tr>
-                    <td class="" style="text-align: center; font-weight: 400">
-                        <span>{{ $loop->iteration }}</span>
-                    </td>
-                    <td class="">
-                        <span>{{ $tanggal_pemesanan }}</span>
-                    </td>
+                    @if ($loop->first)
+                        <td class="" rowspan="{{ count($penumpangs) }}" style="text-align: center; font-weight: 400">
+                            <span>{{ $loop->iteration }}</span>
+                        </td>
+                    @endif
                     <td class="">
                         <span>{{ $penumpang['nama'] }}</span>
                     </td>
-                    <td class="" style="text-align: center;">
-                        <span>{{ $nomer_penerbangan }}</span>
-                        @if ($pulang_pergi == 1)
-                            <br>
-                            <span>{{ $nomer_penerbangan_pulang }}</span>
-                        @endif
-                    </td>
-                    <td class="" style="text-align: center;">
-                        <span>{{ $kode_booking }}</span>
-                        @if ($pulang_pergi == 1)
-                            <br>
-                            <span>{{ $kode_booking_pulang }}</span>
-                        @endif
-                    </td>
-                    <td class="" colspan="2" style="text-align: center;">
-                        <span>{{ $rute_pesawat }}</span>
-                        @if ($pulang_pergi == 1)
-                            <br>
-                            <span>{{ $rute_pesawat_pulang }}</span>
-                        @endif
-                    </td>
-                    <td class="" style="text-align: center;">
-                        <span>{{ date('d-M-y H:i', strtotime($jadwal_berangkat_pesawat)) }}</span>
-                        @if ($pulang_pergi == 1 && $jadwal_berangkat_pesawat_pulang != '')
-                            <br>
-                            <span>{{ date('d-M-y H:i', strtotime($jadwal_berangkat_pesawat_pulang)) }}</span>
-                        @endif
-                    </td>
                     <td class="">
-                        <span>Rp.{{ number_format($harga_satuan, 0, ',', '.') }}</span>
+                        <span>{{ $penumpang['pembayar'] }}</span>
+                        @if (! empty($penumpang['unit_kerja_pembayar']))
+                            <br>
+                            <span>{{ $penumpang['unit_kerja_pembayar'] }}</span>
+                        @endif
                     </td>
+                    @if ($loop->first)
+                        <td class="" rowspan="{{ count($penumpangs) }}" style="text-align: center;">
+                            <span>{{ $nomer_penerbangan }}</span>
+                            @if ($pulang_pergi == 1)
+                                <br>
+                                <span>{{ $nomer_penerbangan_pulang }}</span>
+                            @endif
+                        </td>
+                        <td class="" rowspan="{{ count($penumpangs) }}" style="text-align: center;">
+                            <span>{{ $kode_booking }}</span>
+                            @if ($pulang_pergi == 1)
+                                <br>
+                                <span>{{ $kode_booking_pulang }}</span>
+                            @endif
+                        </td>
+                        <td class="" colspan="2" rowspan="{{ count($penumpangs) }}" style="text-align: center;">
+                            <span>{{ $rute_pesawat }}</span>
+                            @if ($pulang_pergi == 1)
+                                <br>
+                                <span>{{ $rute_pesawat_pulang }}</span>
+                            @endif
+                        </td>
+                        <td class="" rowspan="{{ count($penumpangs) }}" style="text-align: center;">
+                            <span>{{ date('d-M-y H:i', strtotime($jadwal_berangkat_pesawat)) }}</span>
+                            @if ($pulang_pergi == 1 && $jadwal_berangkat_pesawat_pulang != '')
+                                <br>
+                                <span>{{ date('d-M-y H:i', strtotime($jadwal_berangkat_pesawat_pulang)) }}</span>
+                            @endif
+                        </td>
+                        <td class="" rowspan="{{ count($penumpangs) }}">
+                            <span>Rp.{{ number_format($harga_total, 0, ',', '.') }}</span>
+                        </td>
+                    @endif
                 </tr>
             @endforeach
             <tr style="width: 100%">

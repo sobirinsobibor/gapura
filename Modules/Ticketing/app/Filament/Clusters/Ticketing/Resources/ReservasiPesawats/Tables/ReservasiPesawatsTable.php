@@ -5,13 +5,14 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesaw
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Concerns\ReservasiToggleableColumns;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\KategoriPemesananFilter;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalKeberangkatanFilter;
-use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
-use Illuminate\Support\HtmlString;
 use Modules\Ticketing\Filament\Clusters\Ticketing\Filters\TanggalPemesananFilter;
+use Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\ReservasiPesawatResource;
 
 class ReservasiPesawatsTable
 {
@@ -23,6 +24,7 @@ class ReservasiPesawatsTable
             ->striped()
             ->recordAction(null)
             ->defaultSort('ticketing_tiket_pesawat.created_at', 'desc')
+            ->searchable(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->reorderableColumns()
@@ -45,78 +47,127 @@ class ReservasiPesawatsTable
                             </div>
                         HTML);
                     })
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('kode_booking_pesawat')
                     ->label('Kode Booking')
-                    ->searchable(),
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Penumpang')
-                    ->badge()
                     ->listWithLineBreaks()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
 
-                TextColumn::make('nama_pembayar')
+                TextColumn::make('pembayar_per_penumpang')
                     ->label('Pembayar')
-                    ->wrap()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->state(function ($record) {
+                        $items = collect();
 
-                TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
-                    ->label('Unit Kerja')
-                    ->wrap()
-                    ->searchable(),
+                        foreach ($record->ticketingPenumpang ?? [] as $penumpang) {
+                            $bayar = ($penumpang->ticketingPembayaranPenumpang ?? collect())->first();
+                            $nama = $bayar?->ticketingPembayar?->nama_pembayar
+                                ?? $bayar?->nama_pembayar
+                                ?? '-';
+                            $unit = $bayar?->ticketingUnitKerja?->nama_unit_kerja;
 
+                            $items->push($unit ? "{$nama} ({$unit})" : $nama);
+                        }
+
+                        return $items->all();
+                    })
+                    ->searchable(isIndividual: true, isGlobal: false, query: function ($query, $search) {
+                        $query->whereHas('ticketingPenumpang.ticketingPembayaranPenumpang', function ($query) use ($search) {
+                            $query->where(function ($query) use ($search) {
+                                $query->whereHas('ticketingPembayar', function ($query) use ($search) {
+                                    $query->where('nama_pembayar', 'like', "%{$search}%");
+                                })->orWhere('nama_pembayar', 'like', "%{$search}%");
+                            });
+                        });
+                    })
+                    ->listWithLineBreaks()
+                    ->toggleable(),
+                    
                 TextColumn::make('ticketingMaskapai.nama_maskapai')
                     ->label('Maskapai')
-                    ->searchable(),
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
 
 
-                TextColumn::make('jadwal_berangkat_pesawat')
-                    ->label('Keberangkatan')
+                TextColumn::make('ticketingBerangkatBandara.nama_bandara')
+                    ->label('Bandara Berangkat')
                     ->formatStateUsing(function ($state, $record) {
                         $nama = $record->ticketingBerangkatBandara?->nama_bandara;
                         $kode = $record->ticketingBerangkatBandara?->kode_bandara;
+
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode}</div>
+                            </div>
+                        HTML);
+                    })
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
+
+                TextColumn::make('jadwal_berangkat_pesawat')
+                    ->label('Jadwal Berangkat')
+                    ->formatStateUsing(function ($state, $record) {
                         $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
                         $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu;
 
                         return new HtmlString(<<<HTML
                             <div class="leading-tight">
-                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode} • {$tanggal}</div>
+                                <div class="text-gray-950 dark:text-white">{$tanggal}</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">{$jam} {$zona}</div>
                             </div>
                         HTML);
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
-                TextColumn::make('jadwal_tiba_pesawat')
-                    ->label('Kedatangan')
+                TextColumn::make('ticketingTibaBandara.nama_bandara')
+                    ->label('Bandara Tiba')
                     ->formatStateUsing(function ($state, $record) {
                         $nama = $record->ticketingTibaBandara?->nama_bandara;
                         $kode = $record->ticketingTibaBandara?->kode_bandara;
+
+                        return new HtmlString(<<<HTML
+                            <div class="leading-tight">
+                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode}</div>
+                            </div>
+                        HTML);
+                    })
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->toggleable(),
+
+                TextColumn::make('jadwal_tiba_pesawat')
+                    ->label('Jadwal Tiba')
+                    ->formatStateUsing(function ($state, $record) {
                         $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
                         $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu_kedatangan;
 
                         return new HtmlString(<<<HTML
                             <div class="leading-tight">
-                                <div class="font-semibold text-gray-950 dark:text-white">{$nama}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{$kode} • {$tanggal}</div>
+                                <div class="text-gray-950 dark:text-white">{$tanggal}</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">{$jam} {$zona}</div>
                             </div>
                         HTML);
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.status_pemesanan')
                     ->label('Status')
@@ -126,54 +177,41 @@ class ReservasiPesawatsTable
                         'Canceled', 'Refund' => 'danger',
                         default => 'info',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('nomor_ticket')
                     ->label('No. Tiket')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('nomor_penerbangan')
                     ->label('No. Penerbangan')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('kelas')
                     ->label('Kelas')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('detail_pulang_pergi')
-                    ->label('Detail Pulang Pergi')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('zona_waktu')
-                    ->label('Zona Waktu')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('zona_waktu_kedatangan')
-                    ->label('Zona Waktu Kedatangan')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('detail_pulang_pergi')
+                //     ->label('Detail Pulang Pergi')
+                //     ->searchable(isIndividual: true, isGlobal: false)
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingBerangkatBandara.kode_bandara')
                     ->label('Kode Bandara Berangkat')
-                    ->searchable()
-                    ->sortable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingTibaBandara.kode_bandara')
                     ->label('Kode Bandara Tiba')
-                    ->searchable()
-                    ->sortable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.harga_jual')
@@ -182,8 +220,48 @@ class ReservasiPesawatsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                ...self::reservasiCommonToggleableColumns(),
+                ...self::reservasiCommonToggleableColumns(individualSearch: true),
             ])
+            // ->defaultGroup(
+            //     Group::make('tckt_pemesanan_id')
+            //         ->label('Invoice')
+            //         ->getTitleFromRecordUsing(function ($record) {
+            //             $pemesanan = $record->ticketingPemesanan;
+
+            //             return $pemesanan
+            //                 ? "{$pemesanan->invoice} — {$pemesanan->nama_customer}"
+            //                 : 'Tanpa Invoice';
+            //         })
+            //         ->collapsible()
+            // )
+            ->modifyQueryUsing(function ($query) use ($table) {
+                $searchPenumpang = $table->getLivewire()->getTableColumnSearches()['ticketingPenumpang.nama_penumpang'] ?? null;
+                $searchPembayar = $table->getLivewire()->getTableColumnSearches()['pembayar_per_penumpang'] ?? null;
+
+                return $query->with([
+                    'ticketingPemesanan.ticketingPembayaran',
+                    'ticketingPenumpang' => function ($query) use ($searchPenumpang, $searchPembayar) {
+                        $query->with([
+                            'ticketingPembayaranPenumpang.ticketingPembayar',
+                            'ticketingPembayaranPenumpang.ticketingUnitKerja',
+                        ]);
+
+                        if (filled($searchPenumpang)) {
+                            $query->where('nama_penumpang', 'like', "%{$searchPenumpang}%");
+                        }
+
+                        if (filled($searchPembayar)) {
+                            $query->whereHas('ticketingPembayaranPenumpang', function ($query) use ($searchPembayar) {
+                                $query->where(function ($query) use ($searchPembayar) {
+                                    $query->whereHas('ticketingPembayar', function ($query) use ($searchPembayar) {
+                                        $query->where('nama_pembayar', 'like', "%{$searchPembayar}%");
+                                    })->orWhere('nama_pembayar', 'like', "%{$searchPembayar}%");
+                                });
+                            });
+                        }
+                    },
+                ]);
+            })
             ->filters([
                 TanggalKeberangkatanFilter::make()
                     ->filterColumn('ticketing_tiket_pesawat.jadwal_berangkat_pesawat'),
