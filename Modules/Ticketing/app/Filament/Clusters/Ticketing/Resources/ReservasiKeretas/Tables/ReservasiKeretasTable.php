@@ -2,6 +2,7 @@
 
 namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiKeretas\Tables;
 
+use Carbon\Carbon;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -23,6 +24,7 @@ class ReservasiKeretasTable
             ->striped()
             ->recordAction(null)
             ->defaultSort('ticketing_tiket_kereta.created_at', 'desc')
+            ->searchable(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->reorderableColumns()
@@ -34,7 +36,7 @@ class ReservasiKeretasTable
                     ->formatStateUsing(function ($state, $record) {
                         $invoice = $record->ticketingPemesanan?->invoice;
                         $tanggal = $record->ticketingPemesanan?->tanggal_pemesanan
-                            ? \Carbon\Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
+                            ? Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
                             : null;
 
                         return new HtmlString(<<<HTML
@@ -44,38 +46,38 @@ class ReservasiKeretasTable
                             </div>
                         HTML);
                     })
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Penumpang')
                     ->badge()
                     ->listWithLineBreaks()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
                     ->label('Pembayar')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('ticketingKereta.nama_kereta')
                     ->label('Kereta')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('jadwal_berangkat_kereta')
@@ -83,8 +85,8 @@ class ReservasiKeretasTable
                     ->formatStateUsing(function ($state, $record) {
                         $nama = $record->ticketingBerangkatStasiun?->nama_stasiun;
                         $kode = $record->ticketingBerangkatStasiun?->kode_stasiun;
-                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
-                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $tanggal = $state ? Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu;
 
                         return new HtmlString(<<<HTML
@@ -103,8 +105,8 @@ class ReservasiKeretasTable
                     ->formatStateUsing(function ($state, $record) {
                         $nama = $record->ticketingTibaStasiun?->nama_stasiun;
                         $kode = $record->ticketingTibaStasiun?->kode_stasiun;
-                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
-                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $tanggal = $state ? Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu_kedatangan;
 
                         return new HtmlString(<<<HTML
@@ -119,7 +121,7 @@ class ReservasiKeretasTable
 
                 TextColumn::make('ticketingPemesanan.harga_jual')
                     ->label('Harga Jual')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->sortable()
                     ->toggleable(),
 
@@ -136,35 +138,35 @@ class ReservasiKeretasTable
 
                 TextColumn::make('kode_booking_kereta')
                     ->label('Kode Booking Kereta')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('zona_waktu')
                     ->label('Zona Waktu')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('zona_waktu_kedatangan')
                     ->label('Zona Waktu Kedatangan')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingBerangkatStasiun.kode_stasiun')
                     ->label('Kode Stasiun Berangkat')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingTibaStasiun.kode_stasiun')
                     ->label('Kode Stasiun Tiba')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                ...self::reservasiCommonToggleableColumns(),
+                ...self::reservasiCommonToggleableColumns(individualSearch: true),
             ])
             ->filters([
                 TanggalKeberangkatanFilter::make()

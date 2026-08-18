@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Modules\PengajuanDana\Enums\ProposalSubmissionStatus;
 
 class ProposalSubmission extends Model
@@ -61,5 +62,17 @@ class ProposalSubmission extends Model
     public function bankAccounts(): HasMany
     {
         return $this->hasMany(BankAccount::class, 'judan_proposal_submission_id');
+    }
+
+    public function bankTransfers(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            BankTransfer::class,
+            BankAccount::class,
+            'judan_proposal_submission_id',
+            'judan_bank_account_id',
+            'id',
+            'id'
+        );
     }
 }

@@ -5,7 +5,6 @@ namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotel
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -32,7 +31,6 @@ class ReservasiHotelForm
     {
         return [
             Grid::make(2)->schema([
-                
 
                 Select::make('hotel_id')
                     ->label('Hotel')
@@ -64,8 +62,6 @@ class ReservasiHotelForm
                     ->minValue(1)
                     ->required(),
 
-                
-
                 DateTimePicker::make('jadwal_checkin')
                     ->label('Waktu Check-in')
                     ->seconds(false)
@@ -84,7 +80,7 @@ class ReservasiHotelForm
                     ->label('Termasuk Sarapan')
                     ->options([
                         1 => 'Ya',
-                        0 => 'Tidak'
+                        0 => 'Tidak',
                     ]),
 
                 Select::make('vendor_id')

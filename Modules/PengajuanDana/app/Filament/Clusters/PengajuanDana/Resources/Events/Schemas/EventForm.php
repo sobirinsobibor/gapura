@@ -17,45 +17,45 @@ class EventForm
         return $schema
             ->columns(2)
             ->components([
-                Section::make('Data Event')->schema([
-                    TextInput::make('nama')
-                        ->label('Nama Event')
-                        ->required()
-                        ->maxLength(100),
+                Section::make('Data Event')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('nama')
+                            ->label('Nama Event')
+                            ->required()
+                            ->maxLength(100),
 
-                    TextInput::make('nama_singkat')
-                        ->label('Nama Singkat')
-                        ->required()
-                        ->maxLength(12),
+                        TextInput::make('nama_singkat')
+                            ->label('Nama Singkat')
+                            ->required()
+                            ->maxLength(12),
 
-                    TextInput::make('slug')
-                        ->label('Slug')
-                        ->maxLength(12),
+                        Select::make('judan_institution_id')
+                            ->label('Institusi')
+                            ->options(fn () => Institution::query()
+                                ->where('is_active', true)
+                                ->pluck('nama_institusi', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->columnSpanFull(),
 
-                    Select::make('judan_institution_id')
-                        ->label('Institusi')
-                        ->options(fn () => Institution::query()
-                            ->where('is_active', true)
-                            ->pluck('nama_institusi', 'id'))
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+                        DatePicker::make('tanggal_mulai')
+                            ->label('Tanggal Mulai')
+                            ->required()
+                            ->native(false),
 
-                    DatePicker::make('tanggal_mulai')
-                        ->label('Tanggal Mulai')
-                        ->required()
-                        ->native(false),
+                        DatePicker::make('tanggal_selesai')
+                            ->label('Tanggal Selesai')
+                            ->required()
+                            ->native(false)
+                            ->after('tanggal_mulai'),
 
-                    DatePicker::make('tanggal_selesai')
-                        ->label('Tanggal Selesai')
-                        ->required()
-                        ->native(false)
-                        ->after('tanggal_mulai'),
-
-                    Toggle::make('is_active')
-                        ->label('Aktif')
-                        ->default(true),
-                ]),
+                        Toggle::make('is_active')
+                            ->label('Aktif')
+                            ->default(true),
+                    ]),
             ]);
     }
 }

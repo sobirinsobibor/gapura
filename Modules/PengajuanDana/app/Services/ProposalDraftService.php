@@ -16,7 +16,7 @@ class ProposalDraftService
         $eventCode = str_pad((string) $event->getKey(), 12, '0', STR_PAD_LEFT);
 
         $index = ProposalDraft::query()
-            ->where('judan_event_id', $event->getKey())
+            ->where('event_id', $event->getKey())
             ->count() + 1;
 
         return $eventCode

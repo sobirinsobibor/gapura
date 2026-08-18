@@ -2,6 +2,7 @@
 
 namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels\Tables;
 
+use Carbon\Carbon;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -23,6 +24,7 @@ class ReservasiHotelsTable
             ->striped()
             ->recordAction(null)
             ->defaultSort('ticketing_kamar_hotel.created_at', 'desc')
+            ->searchable(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->reorderableColumns()
@@ -34,7 +36,7 @@ class ReservasiHotelsTable
                     ->formatStateUsing(function ($state, $record) {
                         $invoice = $record->ticketingPemesanan?->invoice;
                         $tanggal = $record->ticketingPemesanan?->tanggal_pemesanan
-                            ? \Carbon\Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
+                            ? Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
                             : null;
 
                         return new HtmlString(<<<HTML
@@ -44,38 +46,38 @@ class ReservasiHotelsTable
                             </div>
                         HTML);
                     })
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('ticketingPemesanan.nama_customer')
                     ->label('Pemesan')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Penumpang')
                     ->badge()
                     ->listWithLineBreaks()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingPembayaran.nama_pembayar')
                     ->label('Pembayar')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingPemesanan.ticketingUnitKerja.nama_unit_kerja')
                     ->label('Unit Kerja')
                     ->wrap()
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('ticketingHotel.nama_hotel')
                     ->label('Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
 
                 TextColumn::make('jadwal_checkin')
@@ -85,8 +87,8 @@ class ReservasiHotelsTable
                             return '-';
                         }
 
-                        $tanggal = \Carbon\Carbon::parse($state)->format('d M Y');
-                        $jam = \Carbon\Carbon::parse($state)->format('H:i');
+                        $tanggal = Carbon::parse($state)->format('d M Y');
+                        $jam = Carbon::parse($state)->format('H:i');
 
                         return new HtmlString(<<<HTML
                             <div class="leading-tight">
@@ -105,8 +107,8 @@ class ReservasiHotelsTable
                             return '-';
                         }
 
-                        $tanggal = \Carbon\Carbon::parse($state)->format('d M Y');
-                        $jam = \Carbon\Carbon::parse($state)->format('H:i');
+                        $tanggal = Carbon::parse($state)->format('d M Y');
+                        $jam = Carbon::parse($state)->format('H:i');
 
                         return new HtmlString(<<<HTML
                             <div class="leading-tight">
@@ -119,7 +121,7 @@ class ReservasiHotelsTable
 
                 TextColumn::make('ticketingPemesanan.harga_jual')
                     ->label('Harga Jual')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
@@ -148,54 +150,54 @@ class ReservasiHotelsTable
 
                 TextColumn::make('tipe_kamar')
                     ->label('Tipe Kamar')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('include_breakfast')
                     ->label('Termasuk Sarapan')
                     ->formatStateUsing(fn ($state) => $state ? 'Ya' : 'Tidak')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('zona_waktu')
                     ->label('Zona Waktu')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingHotel.bintang')
                     ->label('Bintang Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingHotel.kota')
                     ->label('Kota Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingHotel.telepon')
                     ->label('Telepon Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingHotel.email')
                     ->label('Email Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('ticketingHotel.alamat')
                     ->label('Alamat Hotel')
-                    ->searchable()
+                    ->searchable(isIndividual: true, isGlobal: false)
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                ...self::reservasiCommonToggleableColumns(['ticketingPemesanan.pulang_pergi']),
+                ...self::reservasiCommonToggleableColumns(['ticketingPemesanan.pulang_pergi'], individualSearch: true),
             ])
             ->filters([
                 TanggalKeberangkatanFilter::make()

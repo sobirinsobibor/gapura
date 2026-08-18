@@ -11,9 +11,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use Modules\PengajuanDana\Enums\ProposalDraftStatus;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Concerns\HasFormattedNumber;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\ProposalSubmissions\ProposalSubmissionResource;
 
 class ProposalDraftsTable
 {
+    use HasFormattedNumber;
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -28,17 +32,40 @@ class ProposalDraftsTable
 
                 TextColumn::make('no_pengajuan')
                     ->label('No. Pengajuan')
+                    ->formatStateUsing(fn ($state) => self::formatDefinedId((string) $state))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('event.nama')
                     ->label('Event')
+                    ->formatStateUsing(function ($record) {
+                        $identity = $record->event?->event_identity;
+
+                        if (! $identity) {
+                            return $record->event?->nama;
+                        }
+
+                        return '<div>' . e($record->event->nama) . '</div>'
+                            . '<div class="text-xs text-gray-400 dark:text-gray-500">' . e($identity) . '</div>';
+                    })
+                    ->html()
                     ->wrap()
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('creativeMember.name')
-                    ->label('Pemohon')
+                TextColumn::make('created_at')
+                    ->label('Tanggal Pengajuan')
+                    ->date('d M Y')
+                    ->sortable(),
+
+                TextColumn::make('deadline_pembayaran')
+                    ->label('Deadline Pembayaran')
+                    ->date('d M Y')
+                    ->sortable(),
+
+                TextColumn::make('catatan_member')
+                    ->label('Catatan Pengajuan')
+                    ->limit(60)
                     ->wrap()
                     ->searchable(),
 
@@ -48,15 +75,6 @@ class ProposalDraftsTable
                     ->badge()
                     ->color('info'),
 
-                TextColumn::make('total_vendor')
-                    ->label('Total')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((float) $state, 0, ',', '.')),
-
-                TextColumn::make('deadline_pembayaran')
-                    ->label('Deadline')
-                    ->date('d M Y')
-                    ->sortable(),
-
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -64,11 +82,18 @@ class ProposalDraftsTable
                     ->color(fn (?ProposalDraftStatus $state): string => $state?->color() ?? 'gray')
                     ->sortable(),
 
-                TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->date('d M Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('file_attached')
+                    ->label('File Pengajuan')
+                    ->formatStateUsing(fn ($state) => filled($state) ? 'Unduh' : '-')
+                    ->icon(fn ($state) => filled($state) ? Heroicon::OutlinedArrowDownTray : null)
+                    ->color('primary')
+                    ->action(function ($record) {
+                        if (filled($record->file_attached) && Storage::disk('local')->exists('proposal/' . $record->file_attached)) {
+                            return response()->download(
+                                Storage::disk('local')->path('proposal/' . $record->file_attached)
+                            );
+                        }
+                    }),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -76,13 +101,23 @@ class ProposalDraftsTable
                         fn (ProposalDraftStatus $status): array => [$status->value => $status->label()]
                     )),
 
-                SelectFilter::make('judan_event_id')
+                SelectFilter::make('event_id')
                     ->label('Event')
                     ->relationship('event', 'nama')
                     ->searchable()
                     ->preload(),
             ])
             ->recordActions([
+                Action::make('ajukan')
+                    ->label('Ajukan')
+                    ->icon(Heroicon::OutlinedPaperAirplane)
+                    ->color('primary')
+                    ->visible(fn ($record): bool => $record->status === ProposalDraftStatus::Menunggu
+                        && auth()->user()?->canAccess(ProposalSubmissionResource::getRbacPermissionNames()['create']))
+                    ->url(fn ($record): string => ProposalSubmissionResource::getUrl('create', [
+                        'judan_proposal_draft_id' => $record->getKey(),
+                    ])),
+
                 Action::make('download')
                     ->label('Unduh')
                     ->icon(Heroicon::OutlinedArrowDownTray)

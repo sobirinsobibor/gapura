@@ -5,7 +5,6 @@ namespace Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\BankAs
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class BankAsalForm
@@ -13,25 +12,25 @@ class BankAsalForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(2)
             ->components([
-                Section::make('Data Bank Asal')->schema([
-                    TextInput::make('nama_bank')
-                        ->label('Nama Bank')
-                        ->required()
-                        ->maxLength(255),
+                TextInput::make('nama_bank')
+                    ->label('Nama Bank')
+                    ->required()
+                    ->columnSpanFull()
+                    ->maxLength(255),
 
-                    TextInput::make('no_rekening')
-                        ->label('Nomor Rekening')
-                        ->maxLength(255),
+                TextInput::make('no_rekening')
+                    ->label('Nomor Rekening')
+                    ->columnSpanFull()
+                    ->maxLength(255),
 
-                    ColorPicker::make('color')
-                        ->label('Warna'),
+                ColorPicker::make('color')
+                    ->label('Warna')
+                    ->columnSpanFull(),
 
-                    Toggle::make('is_active')
-                        ->label('Aktif')
-                        ->default(true),
-                ]),
+                Toggle::make('is_active')
+                    ->label('Aktif')
+                    ->default(true),
             ]);
     }
 }

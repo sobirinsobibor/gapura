@@ -37,7 +37,7 @@ class ReservasiPesawatForm
                         ->collapsible()
                         ->visible(fn (Get $get) => (int) ($get('pulang_pergi') ?? 0) === 1),
                 ])
-                ->columnSpanFull(),
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -135,6 +135,15 @@ class ReservasiPesawatForm
                     ->label('Kelas')
                     ->required()
                     ->maxLength(255),
+
+                Select::make('jenis_penerbangan')
+                    ->label('Jenis Penerbangan')
+                    ->options([
+                        'Domestik' => 'Domestik',
+                        'Internasional' => 'Internasional',
+                    ])
+                    ->default('Domestik')
+                    ->required(),
 
                 Select::make('vendor_id')
                     ->label('Vendor')

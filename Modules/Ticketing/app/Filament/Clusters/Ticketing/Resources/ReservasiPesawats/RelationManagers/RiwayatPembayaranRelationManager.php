@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -26,14 +27,17 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
     protected static ?string $title = 'Riwayat Pembayaran';
 
+    protected ?array $terbayarPerPenumpangCache = null;
+
     public function form(Schema $schema): Schema
     {
+        $this->terbayarPerPenumpangCache = null;
+
         return $schema->schema([
             Select::make('tckt_penumpang_id')
                 ->label('Penumpang')
                 ->options(function (): array {
-                    $tiket = $this->getOwnerRecord();
-                    $penumpangs = $tiket?->ticketingPenumpang ?? collect();
+                    $penumpangs = $this->getOwnerRecord()?->ticketingPenumpang ?? collect();
 
                     if ($penumpangs->isEmpty()) {
                         return [];
@@ -41,12 +45,12 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
                     return $penumpangs->mapWithKeys(fn ($penumpang): array => [
                         $penumpang->id => $this->sisaTagihan($penumpang->id) <= 0
-                            ? $penumpang->nama_penumpang . ' (Lunas)'
-                            : $penumpang->nama_penumpang . ' (Sisa Rp ' . number_format($this->sisaTagihan($penumpang->id), 0, ',', '.') . ')',
+                            ? $penumpang->nama_penumpang.' (Lunas)'
+                            : $penumpang->nama_penumpang.' (Sisa Rp '.number_format($this->sisaTagihan($penumpang->id), 0, ',', '.').')',
                     ])->all();
                 })
                 ->disableOptionWhen(fn (string $value): bool => $this->sisaTagihan($value) <= 0)
-                ->helperText(function (\Filament\Schemas\Components\Utilities\Get $get): ?string {
+                ->helperText(function (Get $get): ?string {
                     $penumpangId = $get('tckt_penumpang_id');
 
                     if (blank($penumpangId)) {
@@ -57,7 +61,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
                     return $sisa <= 0
                         ? 'Penumpang ini sudah lunas.'
-                        : 'Sisa tagihan: Rp ' . number_format($sisa, 0, ',', '.');
+                        : 'Sisa tagihan: Rp '.number_format($sisa, 0, ',', '.');
                 })
                 ->searchable()
                 ->preload()
@@ -85,7 +89,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
                 ->required()
                 ->default(0)
                 ->prefix('Rp')
-                ->maxValue(function (\Filament\Schemas\Components\Utilities\Get $get): int {
+                ->maxValue(function (Get $get): int {
                     $penumpangId = $get('tckt_penumpang_id');
 
                     return blank($penumpangId) ? PHP_INT_MAX : $this->sisaTagihan($penumpangId);
@@ -110,6 +114,9 @@ class RiwayatPembayaranRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with([
+                'ticketingPenumpang.ticketingPembayaranPenumpang',
+            ]))
             ->columns([
                 TextColumn::make('ticketingPenumpang.nama_penumpang')
                     ->label('Penumpang')
@@ -127,7 +134,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
                 TextColumn::make('jumlah_membayar')
                     ->label('Jumlah')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->sortable(),
 
                 TextColumn::make('total_per_penumpang')
@@ -143,7 +150,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
                         return (int) round((int) $total / $penumpangs->count());
                     })
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->sortable(),
 
                 TextColumn::make('terbayar_per_penumpang')
@@ -152,7 +159,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
                         return $record->ticketingPenumpang?->ticketingPembayaranPenumpang
                             ->sum('jumlah_membayar');
                     })
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->sortable(),
 
                 TextColumn::make('sisa_per_penumpang')
@@ -173,7 +180,7 @@ class RiwayatPembayaranRelationManager extends RelationManager
                     })
                     ->formatStateUsing(function ($state) {
                         return (int) $state > 0
-                            ? 'Rp ' . number_format((int) $state, 0, ',', '.')
+                            ? 'Rp '.number_format((int) $state, 0, ',', '.')
                             : 'Lunas';
                     })
                     ->badge()
@@ -243,6 +250,11 @@ class RiwayatPembayaranRelationManager extends RelationManager
 
     protected function sisaTagihan(int $penumpangId): int
     {
+        return max($this->hargaSatuan() - $this->terbayarPerPenumpang()[$penumpangId] ?? 0, 0);
+    }
+
+    protected function hargaSatuan(): int
+    {
         $tiket = $this->getOwnerRecord();
         $penumpangs = $tiket?->ticketingPenumpang ?? collect();
 
@@ -250,12 +262,29 @@ class RiwayatPembayaranRelationManager extends RelationManager
             return 0;
         }
 
-        $hargaSatuan = (int) round((int) $tiket->ticketingPemesanan?->harga_jual / $penumpangs->count());
+        return (int) round((int) $tiket->ticketingPemesanan?->harga_jual / $penumpangs->count());
+    }
 
-        $terbayar = (int) TicketingPembayaranPenumpang::query()
-            ->where('tckt_penumpang_id', $penumpangId)
-            ->sum('jumlah_membayar');
+    protected function terbayarPerPenumpang(): array
+    {
+        if ($this->terbayarPerPenumpangCache !== null) {
+            return $this->terbayarPerPenumpangCache;
+        }
 
-        return max($hargaSatuan - $terbayar, 0);
+        $penumpangIds = ($this->getOwnerRecord()?->ticketingPenumpang ?? collect())
+            ->pluck('id')
+            ->all();
+
+        $this->terbayarPerPenumpangCache = empty($penumpangIds)
+            ? []
+            : TicketingPembayaranPenumpang::query()
+                ->whereIn('tckt_penumpang_id', $penumpangIds)
+                ->groupBy('tckt_penumpang_id')
+                ->selectRaw('tckt_penumpang_id, SUM(jumlah_membayar) as total_terbayar')
+                ->pluck('total_terbayar', 'tckt_penumpang_id')
+                ->map(fn ($total) => (int) $total)
+                ->all();
+
+        return $this->terbayarPerPenumpangCache;
     }
 }

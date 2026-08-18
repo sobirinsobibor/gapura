@@ -15,6 +15,10 @@ class EditReservasiKereta extends EditRecord
 
     protected static string $resource = ReservasiKeretaResource::class;
 
+    protected static ?string $title = 'Edit Reservasi Kereta';
+
+    protected static ?string $breadcrumb = 'Edit Reservasi Kereta';
+
     public function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var TicketingPemesanan $record */

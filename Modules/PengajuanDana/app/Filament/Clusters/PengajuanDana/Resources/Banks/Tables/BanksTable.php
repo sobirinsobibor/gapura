@@ -21,11 +21,6 @@ class BanksTable
                 TextColumn::make('#')
                     ->rowIndex(),
 
-                TextColumn::make('kode_bank')
-                    ->label('Kode Bank')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('nama_bank')
                     ->label('Nama Bank')
                     ->searchable()

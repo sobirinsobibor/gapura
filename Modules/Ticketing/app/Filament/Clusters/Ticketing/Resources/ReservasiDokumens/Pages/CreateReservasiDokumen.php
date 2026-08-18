@@ -14,13 +14,16 @@ class CreateReservasiDokumen extends CreateRecord
 
     protected static string $resource = ReservasiDokumenResource::class;
 
+    protected static ?string $title = 'Tambah Reservasi Dokumen';
+
+    protected static ?string $breadcrumb = 'Tambah Reservasi Dokumen';
+
     public function handleRecordCreation(array $data): Model
     {
         return app(ReservasiDokumenService::class)->create($data);
     }
 
-    //cancreate another
-    
+    // cancreate another
 
     // protected function getRedirectUrl(): string
     // {

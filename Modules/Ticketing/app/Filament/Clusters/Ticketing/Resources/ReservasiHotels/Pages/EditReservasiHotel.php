@@ -15,6 +15,10 @@ class EditReservasiHotel extends EditRecord
 
     protected static string $resource = ReservasiHotelResource::class;
 
+    protected static ?string $title = 'Edit Reservasi Hotel';
+
+    protected static ?string $breadcrumb = 'Edit Reservasi Hotel';
+
     public function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var TicketingPemesanan $record */

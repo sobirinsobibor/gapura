@@ -15,6 +15,10 @@ class CreateReservasiHotel extends CreateRecord
 
     protected static string $resource = ReservasiHotelResource::class;
 
+    protected static ?string $title = 'Tambah Reservasi Hotel';
+
+    protected static ?string $breadcrumb = 'Tambah Reservasi Hotel';
+
     public function handleRecordCreation(array $data): Model
     {
         return app(ReservasiHotelService::class)->create($data);

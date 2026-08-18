@@ -21,11 +21,6 @@ class DivisionsTable
                 TextColumn::make('#')
                     ->rowIndex(),
 
-                TextColumn::make('kode_divisi')
-                    ->label('Kode Divisi')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('nama_divisi')
                     ->label('Nama Divisi')
                     ->searchable()

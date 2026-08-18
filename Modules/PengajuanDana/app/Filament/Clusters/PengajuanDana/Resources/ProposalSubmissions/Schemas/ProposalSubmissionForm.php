@@ -2,17 +2,20 @@
 
 namespace Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\ProposalSubmissions\Schemas;
 
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Modules\PengajuanDana\Enums\ProposalDraftStatus;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Concerns\HasFormattedNumber;
 use Modules\PengajuanDana\Models\Bank;
 use Modules\PengajuanDana\Models\ProposalDraft;
 
 class ProposalSubmissionForm
 {
+    use HasFormattedNumber;
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -29,24 +32,25 @@ class ProposalSubmissionForm
                         ->disabled()
                         ->visible(fn (string $operation): bool => $operation === 'edit'),
 
-                    Select::make('judan_proposal_draft_id')
+                    TextInput::make('judan_proposal_draft_id')
+                        ->hidden()
+                        ->dehydratedWhenHidden()
+                        ->required(),
+
+                    Placeholder::make('draft_display')
                         ->label('Proposal Draft')
-                        ->options(fn () => ProposalDraft::query()
-                            ->with('event')
-                            ->where('status', ProposalDraftStatus::Diajukan)
-                            ->get()
-                            ->mapWithKeys(fn (ProposalDraft $draft): array => [
-                                $draft->getKey() => "{$draft->no_pengajuan} - {$draft->event?->nama}",
-                            ]))
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->disabled(fn (string $operation): bool => $operation === 'edit'),
+                        ->content(function ($get): ?string {
+                            $draft = ProposalDraft::query()
+                                ->with('event')
+                                ->find($get('judan_proposal_draft_id'));
+
+                            return $draft ? self::formatDefinedId($draft->no_pengajuan) . ' - ' . $draft->event?->nama : null;
+                        }),
 
                     TextInput::make('booking_code')
                         ->label('Booking Code')
                         ->maxLength(255),
-                ])->columnSpan(1),
+                ])->columnSpanFull(),
 
                 Section::make('Kebutuhan & Rekening')->schema([
                     Select::make('needs')
@@ -87,7 +91,7 @@ class ProposalSubmissionForm
                                 ->numeric()
                                 ->required(),
                         ]),
-                ])->columnSpan(1),
+                ])->columnSpanFull(),
             ]);
     }
 }

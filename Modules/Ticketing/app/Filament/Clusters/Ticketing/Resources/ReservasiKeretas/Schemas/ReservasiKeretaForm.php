@@ -11,6 +11,7 @@ use Filament\Schemas\Schema;
 use Modules\Ticketing\Filament\Clusters\Ticketing\ReservasiFormPartials;
 use Modules\Ticketing\Models\TicketingKereta;
 use Modules\Ticketing\Models\TicketingStasiun;
+use Modules\Ticketing\Models\TicketingVendor;
 
 class ReservasiKeretaForm
 {
@@ -43,8 +44,6 @@ class ReservasiKeretaForm
                     ->label('Kode Booking')
                     ->required()
                     ->maxLength(255),
-
-               
 
                 Select::make('stasiun_berangkat_id')
                     ->label('Stasiun Berangkat')
@@ -86,15 +85,13 @@ class ReservasiKeretaForm
 
                 Select::make('vendor_id')
                     ->label('Vendor')
-                    ->options(fn () => \Modules\Ticketing\Models\TicketingVendor::query()
+                    ->options(fn () => TicketingVendor::query()
                         ->where('jenis_vendor', 2)
                         ->pluck('nama_vendor', 'id'))
                     ->searchable()
                     ->preload()
                     ->required(),
-                
 
-                
             ]),
         ];
     }

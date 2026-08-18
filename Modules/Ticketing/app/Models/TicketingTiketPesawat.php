@@ -2,9 +2,10 @@
 
 namespace Modules\Ticketing\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Ticketing\Models\Concerns\LogsReservasiActivity;
+
 // use Modules\Ticketing\Database\Factories\TicketingTiketPesawatFactory;
 
 class TicketingTiketPesawat extends Model
@@ -12,7 +13,7 @@ class TicketingTiketPesawat extends Model
     use HasFactory;
     use LogsReservasiActivity;
 
-    protected $table ='ticketing_tiket_pesawat';
+    protected $table = 'ticketing_tiket_pesawat';
 
     /**
      * The attributes that are mass assignable.
@@ -27,16 +28,40 @@ class TicketingTiketPesawat extends Model
         'nomor_penerbangan',
         'kode_booking_pesawat',
         'kelas',
+        'jenis_penerbangan',
         'jadwal_berangkat_pesawat',
         'jadwal_tiba_pesawat',
         'detail_pulang_pergi',
         'zona_waktu',
-        'zona_waktu_kedatangan'
+        'zona_waktu_kedatangan',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'invoice';
+    }
+
+    public function getRouteKey()
+    {
+        return $this->ticketingPemesanan?->invoice;
+    }
+
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        $field = $field ?? $this->getRouteKeyName();
+
+        if ($field === 'invoice') {
+            return $query->whereHas('ticketingPemesanan', function ($q) use ($value): void {
+                $q->where('ticketing_pemesanan.invoice', $value);
+            });
+        }
+
+        return parent::resolveRouteBindingQuery($query, $value, $field);
+    }
 
     public function ticketingMaskapai()
     {
-        return $this->belongsTo(TicketingMaskapai::class,'tckt_maskapai_id');
+        return $this->belongsTo(TicketingMaskapai::class, 'tckt_maskapai_id');
     }
 
     public function ticketingPemesanan()

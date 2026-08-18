@@ -21,11 +21,6 @@ class InstitutionsTable
                 TextColumn::make('#')
                     ->rowIndex(),
 
-                TextColumn::make('kode_institusi')
-                    ->label('Kode Institusi')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('nama_institusi')
                     ->label('Nama Institusi')
                     ->searchable()

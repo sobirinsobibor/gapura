@@ -43,6 +43,7 @@ class ReservasiPesawatService extends ReservasiService
                 'nomor_penerbangan' => $data['nomor_penerbangan'] ?? null,
                 'kode_booking_pesawat' => $data['kode_booking_pesawat'] ?? null,
                 'kelas' => $data['kelas'] ?? null,
+                'jenis_penerbangan' => $data['jenis_penerbangan'] ?? null,
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($data['jadwal_berangkat_pesawat'] ?? null),
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($data['jadwal_tiba_pesawat'] ?? null),
                 'zona_waktu' => $data['zona_waktu'] ?? null,
@@ -94,6 +95,7 @@ class ReservasiPesawatService extends ReservasiService
                 'nomor_penerbangan' => $data['nomor_penerbangan'] ?? $tiket->nomor_penerbangan,
                 'kode_booking_pesawat' => $data['kode_booking_pesawat'] ?? $tiket->kode_booking_pesawat,
                 'kelas' => $data['kelas'] ?? $tiket->kelas,
+                'jenis_penerbangan' => $data['jenis_penerbangan'] ?? $tiket->jenis_penerbangan,
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($data['jadwal_berangkat_pesawat'] ?? null)
                     ?? $tiket->jadwal_berangkat_pesawat,
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($data['jadwal_tiba_pesawat'] ?? null)
@@ -125,6 +127,7 @@ class ReservasiPesawatService extends ReservasiService
                 'nomor_penerbangan' => $row['nomor_penerbangan'] ?? null,
                 'kode_booking_pesawat' => $row['kode_booking_pesawat'] ?? null,
                 'kelas' => $row['kelas'] ?? null,
+                'jenis_penerbangan' => $row['jenis_penerbangan'] ?? null,
                 'jadwal_berangkat_pesawat' => $this->normalizeDateTime($row['jadwal_berangkat_pesawat'] ?? null),
                 'jadwal_tiba_pesawat' => $this->normalizeDateTime($row['jadwal_tiba_pesawat'] ?? null),
                 'zona_waktu' => $row['zona_waktu'] ?? null,

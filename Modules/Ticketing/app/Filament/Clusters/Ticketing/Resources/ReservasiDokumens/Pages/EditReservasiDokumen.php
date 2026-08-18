@@ -15,6 +15,10 @@ class EditReservasiDokumen extends EditRecord
 
     protected static string $resource = ReservasiDokumenResource::class;
 
+    protected static ?string $title = 'Edit Reservasi Dokumen';
+
+    protected static ?string $breadcrumb = 'Edit Reservasi Dokumen';
+
     public function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var TicketingPemesanan $record */

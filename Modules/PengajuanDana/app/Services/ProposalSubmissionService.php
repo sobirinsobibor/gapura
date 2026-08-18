@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Modules\PengajuanDana\Enums\ProposalDraftStatus;
 use Modules\PengajuanDana\Enums\ProposalSubmissionStatus;
+use Modules\PengajuanDana\Models\BankAccount;
+use Modules\PengajuanDana\Models\BankTransfer;
 use Modules\PengajuanDana\Models\Event;
 use Modules\PengajuanDana\Models\ProposalDraft;
 use Modules\PengajuanDana\Models\ProposalSubmission;
@@ -123,5 +125,106 @@ class ProposalSubmissionService
                 'catatan_manager' => $note,
             ]);
         });
+    }
+
+    /**
+     * Nomor transfer 17 karakter:
+     * 12 digit kode event + 3 digit index draft + 2 digit urutan rekening.
+     */
+    public function generateNoTransfer(BankAccount $account): string
+    {
+        $draft = $account->proposalSubmission->proposalDraft;
+
+        $eventCode = str_pad((string) $draft->event->getKey(), 12, '0', STR_PAD_LEFT);
+        $draftIndex = substr($draft->no_pengajuan, 12, 3);
+
+        $accountIndex = $account->proposalSubmission->bankAccounts()
+            ->where('id', '<=', $account->getKey())
+            ->count();
+
+        return $eventCode
+            . $draftIndex
+            . str_pad((string) $accountIndex, 2, '0', STR_PAD_LEFT);
+    }
+
+    public function recordTransfer(ProposalSubmission $submission, User $treasurer, array $data): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::ProsesTransfer) {
+            throw new RuntimeException('Submission tidak dalam proses transfer.');
+        }
+
+        $account = BankAccount::query()
+            ->where('judan_proposal_submission_id', $submission->getKey())
+            ->findOrFail($data['judan_bank_account_id']);
+
+        if ($account->bankTransfers()->exists()) {
+            throw new RuntimeException('Rekening ini sudah memiliki bukti transfer.');
+        }
+
+        DB::transaction(function () use ($submission, $treasurer, $data, $account): void {
+            $fileAttached = $data['file_attached'];
+            if (is_array($fileAttached)) {
+                $fileAttached = $fileAttached[0] ?? null;
+            }
+
+            BankTransfer::create([
+                'no_transfer' => $this->generateNoTransfer($account),
+                'judan_bank_account_id' => $account->getKey(),
+                'judan_bank_asal_id' => $data['judan_bank_asal_id'] ?? null,
+                'eagle_treasurer_id' => $treasurer->getKey(),
+                'file_attached' => $fileAttached,
+                'melalui' => $data['melalui'],
+                'tanggal_transfer' => $data['tanggal_transfer'],
+            ]);
+
+            $remaining = $submission->bankAccounts()
+                ->whereDoesntHave('bankTransfers')
+                ->count();
+
+            if ($remaining === 0) {
+                $this->markSelesai($submission);
+            }
+        });
+    }
+
+    public function complete(ProposalSubmission $submission): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::ProsesTransfer) {
+            throw new RuntimeException('Submission tidak dalam proses transfer.');
+        }
+
+        DB::transaction(function () use ($submission): void {
+            $this->markSelesai($submission);
+        });
+    }
+
+    public function rejectReimburse(ProposalSubmission $submission, ?string $note): void
+    {
+        if ($submission->status !== ProposalSubmissionStatus::ProsesTransfer) {
+            throw new RuntimeException('Submission tidak dalam proses transfer.');
+        }
+
+        DB::transaction(function () use ($submission, $note): void {
+            $submission->update([
+                'status' => ProposalSubmissionStatus::Ditolak,
+                'catatan_manager' => $note,
+                'checked_date' => now()->toDateString(),
+            ]);
+
+            $submission->proposalDraft->update([
+                'status' => ProposalDraftStatus::Ditolak,
+            ]);
+        });
+    }
+
+    private function markSelesai(ProposalSubmission $submission): void
+    {
+        $submission->update([
+            'status' => ProposalSubmissionStatus::Selesai,
+        ]);
+
+        $submission->proposalDraft->update([
+            'status' => ProposalDraftStatus::Diterima,
+        ]);
     }
 }

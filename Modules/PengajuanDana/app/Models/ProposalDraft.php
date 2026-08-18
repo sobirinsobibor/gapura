@@ -17,7 +17,7 @@ class ProposalDraft extends Model
 
     protected $fillable = [
         'no_pengajuan',
-        'judan_event_id',
+        'event_id',
         'creative_member_id',
         'organizer_admin_id',
         'status',
@@ -34,7 +34,7 @@ class ProposalDraft extends Model
 
     public function event(): BelongsTo
     {
-        return $this->belongsTo(Event::class, 'judan_event_id');
+        return $this->belongsTo(Event::class, 'event_id');
     }
 
     public function creativeMember(): BelongsTo

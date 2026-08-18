@@ -2,6 +2,7 @@
 
 namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Tables;
 
+use Carbon\Carbon;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -37,7 +38,7 @@ class ReservasiPesawatsTable
                     ->formatStateUsing(function ($state, $record) {
                         $invoice = $record->ticketingPemesanan?->invoice;
                         $tanggal = $record->ticketingPemesanan?->tanggal_pemesanan
-                            ? \Carbon\Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
+                            ? Carbon::parse($record->ticketingPemesanan->tanggal_pemesanan)->format('d M Y')
                             : null;
 
                         return new HtmlString(<<<HTML
@@ -96,12 +97,11 @@ class ReservasiPesawatsTable
                     })
                     ->listWithLineBreaks()
                     ->toggleable(),
-                    
+
                 TextColumn::make('ticketingMaskapai.nama_maskapai')
                     ->label('Maskapai')
                     ->searchable(isIndividual: true, isGlobal: false)
                     ->toggleable(),
-
 
                 TextColumn::make('ticketingBerangkatBandara.nama_bandara')
                     ->label('Bandara Berangkat')
@@ -122,8 +122,8 @@ class ReservasiPesawatsTable
                 TextColumn::make('jadwal_berangkat_pesawat')
                     ->label('Jadwal Berangkat')
                     ->formatStateUsing(function ($state, $record) {
-                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
-                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $tanggal = $state ? Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu;
 
                         return new HtmlString(<<<HTML
@@ -155,8 +155,8 @@ class ReservasiPesawatsTable
                 TextColumn::make('jadwal_tiba_pesawat')
                     ->label('Jadwal Tiba')
                     ->formatStateUsing(function ($state, $record) {
-                        $tanggal = $state ? \Carbon\Carbon::parse($state)->format('d M Y') : null;
-                        $jam = $state ? \Carbon\Carbon::parse($state)->format('H:i') : null;
+                        $tanggal = $state ? Carbon::parse($state)->format('d M Y') : null;
+                        $jam = $state ? Carbon::parse($state)->format('H:i') : null;
                         $zona = $record->zona_waktu_kedatangan;
 
                         return new HtmlString(<<<HTML
@@ -198,6 +198,17 @@ class ReservasiPesawatsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                TextColumn::make('jenis_penerbangan')
+                    ->label('Jenis Penerbangan')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Internasional' => 'info',
+                        default => 'success',
+                    })
+                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->sortable()
+                    ->toggleable(),
+
                 // TextColumn::make('detail_pulang_pergi')
                 //     ->label('Detail Pulang Pergi')
                 //     ->searchable(isIndividual: true, isGlobal: false)
@@ -216,7 +227,7 @@ class ReservasiPesawatsTable
 
                 TextColumn::make('ticketingPemesanan.harga_jual')
                     ->label('Harga Jual')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format((int) $state, 0, ',', '.'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -265,9 +276,9 @@ class ReservasiPesawatsTable
             ->filters([
                 TanggalKeberangkatanFilter::make()
                     ->filterColumn('ticketing_tiket_pesawat.jadwal_berangkat_pesawat'),
-                    
+
                 TanggalPemesananFilter::make(),
-                   
+
                 KategoriPemesananFilter::make(),
             ])
             ->recordActions([

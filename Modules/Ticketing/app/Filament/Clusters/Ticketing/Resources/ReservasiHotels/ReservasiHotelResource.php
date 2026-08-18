@@ -2,10 +2,9 @@
 
 namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiHotels;
 
+use App\Filament\Concerns\HasRbacPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
-
-use App\Filament\Concerns\HasRbacPermission;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -28,9 +27,15 @@ class ReservasiHotelResource extends Resource
     protected static ?string $model = TicketingPemesanan::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+
     protected static UnitEnum|string|null $navigationGroup = 'Reservasi';
+
     protected static ?string $navigationLabel = 'Reservasi Hotel';
+
+    protected static ?string $breadcrumb = 'Reservasi Hotel';
+
     protected static ?string $slug = 'reservasi-hotel';
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $cluster = TicketingCluster::class;

@@ -44,8 +44,11 @@ class ProposalSubmissionResource extends Resource
                 'organizerAdmin',
                 'inspiringManager',
                 'needs',
+                'bankAccounts.bank',
+                'bankAccounts.bankTransfers',
             ])
-            ->withCount('bankAccounts');
+            ->withCount('bankAccounts')
+            ->withCount('bankTransfers');
 
         $user = auth()->user();
 

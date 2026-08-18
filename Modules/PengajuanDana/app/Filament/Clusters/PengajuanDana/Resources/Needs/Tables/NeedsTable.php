@@ -21,11 +21,6 @@ class NeedsTable
                 TextColumn::make('#')
                     ->rowIndex(),
 
-                TextColumn::make('kode_kebutuhan')
-                    ->label('Kode Kebutuhan')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('nama_kebutuhan')
                     ->label('Nama Kebutuhan')
                     ->searchable()

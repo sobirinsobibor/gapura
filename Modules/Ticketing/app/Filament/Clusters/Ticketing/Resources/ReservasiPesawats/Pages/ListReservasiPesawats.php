@@ -2,6 +2,7 @@
 
 namespace Modules\Ticketing\Filament\Clusters\Ticketing\Resources\ReservasiPesawats\Pages;
 
+use Carbon\Carbon;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -54,6 +55,7 @@ class ListReservasiPesawats extends ListRecords
             'nomor_penerbangan' => 'Nomor Penerbangan',
             'kode_booking_pesawat' => 'Kode Booking Pesawat',
             'kelas' => 'Kelas',
+            'jenis_penerbangan' => 'Jenis Penerbangan',
             'ticketingBerangkatBandara.kode_bandara' => 'Kode Bandara Berangkat',
             'ticketingBerangkatBandara.nama_bandara' => 'Bandara Berangkat',
             'ticketingTibaBandara.kode_bandara' => 'Kode Bandara Tiba',
@@ -115,7 +117,7 @@ class ListReservasiPesawats extends ListRecords
                         }
 
                         if (in_array($name, ['jadwal_berangkat_pesawat', 'jadwal_tiba_pesawat'], true) && filled($value)) {
-                            $value = \Carbon\Carbon::parse($value)->format('d M Y H:i');
+                            $value = Carbon::parse($value)->format('d M Y H:i');
                         }
 
                         if (is_null($value)) {

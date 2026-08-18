@@ -12,7 +12,10 @@ use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\PengajuanDanaCluster;
 use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Pages\CreateEvent;
 use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Pages\EditEvent;
 use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Pages\ListEvents;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Pages\ViewEvent;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\RelationManagers\ProposalDraftsRelationManager;
 use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Schemas\EventForm;
+use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Schemas\EventInfolist;
 use Modules\PengajuanDana\Filament\Clusters\PengajuanDana\Resources\Events\Tables\EventsTable;
 use Modules\PengajuanDana\Models\Event;
 
@@ -39,6 +42,11 @@ class EventResource extends Resource
         return EventForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return EventInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return EventsTable::configure($table);
@@ -47,7 +55,7 @@ class EventResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ProposalDraftsRelationManager::class,
         ];
     }
 
@@ -56,6 +64,7 @@ class EventResource extends Resource
         return [
             'index' => ListEvents::route('/'),
             'create' => CreateEvent::route('/create'),
+            'view' => ViewEvent::route('/{record}'),
             'edit' => EditEvent::route('/{record}/edit'),
         ];
     }
